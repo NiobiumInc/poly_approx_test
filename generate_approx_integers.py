@@ -70,10 +70,8 @@ def generate_mixed_approx_integers(n_excluding=80, n_desired=10, max_value=8,
 
 def rescale_to_unit_interval(values, max_value=8):
     """
-    Rescale values from [0, max_value] to [-1, 1] using the formula:
-    x_i = i / (max_value/2) - 1.0
-    
-    For max_value=8: x_i = i / 4.0 - 1.0
+    Rescale values from [0, max_value] to [-1, 1] using the correct formula:
+    x_i = i / 4.0 - 1.0  // map from {0,8} to the interval [-1,1]
     
     Parameters:
     - values: numpy array of values in [0, max_value] range
@@ -82,8 +80,7 @@ def rescale_to_unit_interval(values, max_value=8):
     Returns:
     - numpy array scaled to [-1, 1]
     """
-    scale_factor = max_value / 2.0  # 4.0 when max_value=8
-    return values / scale_factor - 1.0
+    return values / (max_value / 2.0) - 1.0
 
 if __name__ == "__main__":
     # Test excluding desired value
