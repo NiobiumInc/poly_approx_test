@@ -17,6 +17,7 @@ from generate_approx_integers import (
     generate_approx_desired_value,
     rescale_to_unit_interval
 )
+from config import GRAPHS_BASE_PATH
 
 
 class EpsilonVariationTester:
@@ -271,7 +272,11 @@ class EpsilonVariationTester:
             epsilon_values = self.generate_epsilon_values()
         
         results = []
-        domains_to_test = [False, True] if test_both_domains else [False]
+        if test_both_domains:
+            domains_to_test = [False, True]  # Test both original and rescaled
+        else:
+            # Use the domain specified in the base config
+            domains_to_test = [self.base_config.use_rescaled]
         
         print(f"Testing {function_name} with {len(epsilon_values)} epsilon values...")
         print(f"Epsilon range: {min(epsilon_values):.3f} to {max(epsilon_values):.3f}")
@@ -330,7 +335,7 @@ class EpsilonVariationTester:
             return
         
         run_id = results[0]['run_id']
-        function_folder = f'graphs/aug1/{function_name}'
+        function_folder = f'{GRAPHS_BASE_PATH}/{function_name}'
         os.makedirs(function_folder, exist_ok=True)
         
         # 1. Save function plot
@@ -604,7 +609,7 @@ class EpsilonVariationTester:
             writer.writerow(row)
     
     def log_results_to_csv(self, results: List[Dict[str, Any]], 
-                          csv_path: str = "graphs/aug1/epsilon_variation_results.csv"):
+                          csv_path: str = f"{GRAPHS_BASE_PATH}/epsilon_variation_results.csv"):
         """
         Log epsilon variation results to CSV.
         
@@ -697,43 +702,54 @@ class EpsilonVariationTester:
 
 
 def run_single_function_epsilon_test(function_name: str = 'impulse', 
-                                    test_both_domains: bool = True,
-                                    num_eps: int = 20):
+                                    base_config: 'FunctionConfig' = None,
+                                    epsilon_values: list = None,
+                                    cheb_degree: int = 119,
+                                    test_both_domains: bool = True):
     """
     Run epsilon variation test for a single function.
     
     Args:
         function_name: Function to test ('impulse', 'plateau_reg', 'plateau_sine')
+        base_config: Configuration object with all parameters
+        epsilon_values: List of epsilon values to test
+        cheb_degree: Degree of Chebyshev polynomial
         test_both_domains: Whether to test both original and rescaled domains
-        num_eps: Number of epsilon values to test
     """
     print(f"=== Epsilon Variation Test for {function_name} ===")
     
-    # Base configuration
-    base_config = FunctionConfig(
-        desired_value=2.0,
-        impulse_mu=2.0,
-        impulse_sigma=0.3,
-        impulse_scaling=1.0
-    )
+    # Use provided config or create default
+    if base_config is None:
+        base_config = FunctionConfig(
+            function_name=function_name,
+            desired_value=2.0,
+            impulse_mu=2.0,
+            impulse_sigma=0.3,
+            impulse_scaling=1.0
+        )
+    else:
+        # Update function name in the config to match the requested function
+        base_config.function_name = function_name
     
     # Create tester
     tester = EpsilonVariationTester(base_config)
     
-    # Generate epsilon values
-    epsilon_values = tester.generate_epsilon_values(min_eps=0.001, max_eps=0.4, num_eps=num_eps)
+    # Use provided epsilon values or generate default
+    if epsilon_values is None:
+        epsilon_values = tester.generate_epsilon_values(min_eps=0.001, max_eps=0.4, num_eps=20)
+    
     print(f"Testing with {len(epsilon_values)} epsilon values: {epsilon_values[:3]}...{epsilon_values[-3:]}")
     
     # Run test
     results = tester.run_epsilon_variation_test(
         function_name=function_name,
         epsilon_values=epsilon_values,
-        cheb_degree=119,
+        cheb_degree=cheb_degree,
         test_both_domains=test_both_domains
     )
     
     print(f"\nTest Complete: {len(results)} evaluations")
-    print(f"Files saved to: graphs/aug1/{function_name}/")
+    print(f"Files saved to: {GRAPHS_BASE_PATH}/{function_name}/")
     
     return results
 
@@ -761,8 +777,29 @@ def run_comprehensive_epsilon_test():
 
 
 if __name__ == "__main__":
-    # Test just impulse function first
-    results = run_single_function_epsilon_test('impulse', test_both_domains=True, num_eps=5)
+    # Test just impulse function first with new signature
+    import numpy as np
+    from indicator_functions import FunctionConfig
+    
+    # Create a simple config for testing
+    test_config = FunctionConfig(
+        function_name='impulse',
+        desired_value=2.0,
+        impulse_mu=2.0,
+        impulse_sigma=0.3,
+        impulse_scaling=1.0
+    )
+    
+    # Generate 5 epsilon values for testing
+    test_epsilons = np.linspace(0.001, 0.4, 5).tolist()
+    
+    results = run_single_function_epsilon_test(
+        function_name='impulse',
+        base_config=test_config,
+        epsilon_values=test_epsilons,
+        cheb_degree=119,
+        test_both_domains=True
+    )
     
     # Uncomment to run all functions
     # results = run_comprehensive_epsilon_test()

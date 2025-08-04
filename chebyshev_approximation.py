@@ -10,6 +10,7 @@ import math
 import numpy as np
 from typing import Callable, List, Union, Tuple, Dict, Any
 from indicator_functions import FunctionConfig, get_function_by_name
+from config import GRAPHS_BASE_PATH
 
 
 def eval_chebyshev_coefficients(
@@ -247,7 +248,7 @@ class ChebyshevApproximator:
         
         return results
     
-    def save_approximation_plot(self, results: Dict[str, Any], base_dir: str = "graphs/aug1"):
+    def save_approximation_plot(self, results: Dict[str, Any], base_dir: str = GRAPHS_BASE_PATH):
         """
         Save a plot of the approximation results in function-specific folder.
         
@@ -301,7 +302,7 @@ class ChebyshevApproximator:
         print(f"Saved approximation plot: {filepath}")
         return filepath
     
-    def log_results_to_csv(self, results: Dict[str, Any], csv_path: str = "graphs/aug1/chebyshev_results.csv"):
+    def log_results_to_csv(self, results: Dict[str, Any], csv_path: str = f"{GRAPHS_BASE_PATH}/chebyshev_results.csv"):
         """
         Log approximation results to CSV file.
         

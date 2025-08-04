@@ -13,6 +13,7 @@ import string
 import csv
 import os
 from typing import Dict, Any, Callable, Optional
+from config import GRAPHS_BASE_PATH
 from dataclasses import dataclass, field
 from generate_approx_integers import rescale_to_unit_interval
 
@@ -139,7 +140,7 @@ class FunctionConfig:
         
         return base_dict
     
-    def log_to_csv(self, csv_path: str = "graphs/aug1/run_log.csv"):
+    def log_to_csv(self, csv_path: str = f"{GRAPHS_BASE_PATH}/run_log.csv"):
         """Log configuration to CSV file."""
         os.makedirs(os.path.dirname(csv_path), exist_ok=True)
         
@@ -372,7 +373,7 @@ def run_single_function_demo(function_name: str, use_rescaled: bool = False):
     
     # Create function-specific folder and save with ID at end
     rescaled_suffix = "rescaled" if use_rescaled else "original"
-    function_folder = f'graphs/aug1/{function_name}'
+    function_folder = f'{GRAPHS_BASE_PATH}/{function_name}'
     os.makedirs(function_folder, exist_ok=True)
     
     filename = f'{function_name}_{rescaled_suffix}_{config.id}.png'
