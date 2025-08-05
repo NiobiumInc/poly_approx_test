@@ -16,24 +16,19 @@ import utils
 def rescale_to_unit_interval(values: np.ndarray, min_val: float = None, 
                            max_val: float = None) -> np.ndarray:
     """
-    Rescale values from [min_val, max_val] to [-1, 1] using linear transformation.
+    Rescale values from [0, 8] to [-1, 1] using x/4 - 1 transformation.
     
     Args:
-        values: Array of values to rescale
-        min_val: Minimum value of original domain (uses config.MIN_VAL if None)
-        max_val: Maximum value of original domain (uses config.MAX_VAL if None)
+        values: Array of values to rescale (should be in [0, 8])
+        min_val: Ignored (kept for API compatibility)
+        max_val: Ignored (kept for API compatibility)
         
     Returns:
-        Array of values rescaled to [-1, 1]
+        Array of values rescaled to [-1, 1] using x/4 - 1
     """
-    if min_val is None:
-        min_val = config.MIN_VAL
-    if max_val is None:
-        max_val = config.MAX_VAL
-    
-    # Linear transformation: [min_val, max_val] -> [-1, 1]
-    domain_width = max_val - min_val
-    return 2.0 * (values - min_val) / domain_width - 1.0
+    # Use the specified transformation: x/4 - 1
+    # This maps [0, 8] -> [-1, 1]
+    return values / 4.0 - 1.0
 
 
 def impulse(x: float, epsilon: float = 0) -> float:
@@ -97,11 +92,10 @@ def plateau_sine(x: float, epsilon: float = 0) -> float:
     
     # Determine center location and width
     if config.USE_RESCALED:
-        # Rescale desired value and width to [-1, 1] domain
+        # Rescale desired value to [-1, 1] domain using x/4 - 1
         mu = rescale_to_unit_interval(np.array([config.DESIRED_VALUE]))[0]
-        # Adjust width for rescaled domain
-        domain_range = config.MAX_VAL + epsilon - (config.MIN_VAL - epsilon)
-        width = sp_width * (2 / domain_range)
+        # Adjust width for rescaled domain: [0,8] -> [-1,1] has scale factor of 1/4
+        width = sp_width / 4.0
     else:
         mu = config.DESIRED_VALUE
         width = sp_width

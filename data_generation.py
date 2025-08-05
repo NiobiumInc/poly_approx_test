@@ -13,7 +13,7 @@ import config
 def generate_approximate_integers(target_value: float, epsilon: float, 
                                 num_points: int, random_seed: int = None) -> np.ndarray:
     """
-    Generate approximate integer values around a target value.
+    Generate approximate integer values around a target value, ensuring bounds [0, MAX_VAL].
     
     Args:
         target_value: The target integer value to approximate
@@ -22,62 +22,64 @@ def generate_approximate_integers(target_value: float, epsilon: float,
         random_seed: Optional seed for reproducibility
         
     Returns:
-        Array of approximate values in [target_value - epsilon, target_value + epsilon]
+        Array of approximate values constrained to [0, MAX_VAL]
     """
     if random_seed is not None:
         np.random.seed(random_seed)
     
     # Generate uniform random values in [-epsilon, +epsilon]
     random_offsets = np.random.uniform(-epsilon, epsilon, num_points)
-    return target_value + random_offsets
+    raw_values = target_value + random_offsets
+    
+    # Ensure values stay within [0, MAX_VAL] bounds
+    # For boundary values (0 and MAX_VAL), only generate noise in valid direction
+    if target_value == 0:
+        # For target 0, only allow positive noise (keep values >= 0)
+        random_offsets = np.random.uniform(0, epsilon, num_points)
+        raw_values = target_value + random_offsets
+    elif target_value == config.MAX_VAL:
+        # For target MAX_VAL, only allow negative noise (keep values <= MAX_VAL)
+        random_offsets = np.random.uniform(-epsilon, 0, num_points)
+        raw_values = target_value + random_offsets
+    
+    # Clamp all values to [0, MAX_VAL] as final safety check
+    return np.clip(raw_values, 0, config.MAX_VAL)
 
 
 def rescale_to_unit_interval(values: np.ndarray, min_val: float = None, 
                            max_val: float = None) -> np.ndarray:
     """
-    Rescale values from [min_val, max_val] to [-1, 1] using linear transformation.
+    Rescale values from [0, 8] to [-1, 1] using x/4 - 1 transformation.
     
     Args:
-        values: Array of values to rescale
-        min_val: Minimum value of original domain (uses config.MIN_VAL if None)
-        max_val: Maximum value of original domain (uses config.MAX_VAL if None)
+        values: Array of values to rescale (should be in [0, 8])
+        min_val: Ignored (kept for API compatibility)
+        max_val: Ignored (kept for API compatibility)
         
     Returns:
-        Array of values rescaled to [-1, 1]
+        Array of values rescaled to [-1, 1] using x/4 - 1
     """
-    if min_val is None:
-        min_val = config.MIN_VAL
-    if max_val is None:
-        max_val = config.MAX_VAL
-    
-    # Linear transformation: [min_val, max_val] -> [-1, 1]
-    # Formula: 2 * (x - min_val) / (max_val - min_val) - 1
-    domain_width = max_val - min_val
-    return 2.0 * (values - min_val) / domain_width - 1.0
+    # Use the specified transformation: x/4 - 1
+    # This maps [0, 8] -> [-1, 1]
+    return values / 4.0 - 1.0
 
 
 def rescale_from_unit_interval(values: np.ndarray, min_val: float = None,
                              max_val: float = None) -> np.ndarray:
     """
-    Rescale values from [-1, 1] back to [min_val, max_val].
+    Rescale values from [-1, 1] back to [0, 8] using (x + 1) * 4 transformation.
     
     Args:
         values: Array of values in [-1, 1] to rescale
-        min_val: Minimum value of target domain (uses config.MIN_VAL if None)
-        max_val: Maximum value of target domain (uses config.MAX_VAL if None)
+        min_val: Ignored (kept for API compatibility)
+        max_val: Ignored (kept for API compatibility)
         
     Returns:
-        Array of values rescaled to [min_val, max_val]
+        Array of values rescaled to [0, 8] using (x + 1) * 4
     """
-    if min_val is None:
-        min_val = config.MIN_VAL
-    if max_val is None:
-        max_val = config.MAX_VAL
-    
-    # Inverse linear transformation: [-1, 1] -> [min_val, max_val]
-    # Formula: (x + 1) * (max_val - min_val) / 2 + min_val
-    domain_width = max_val - min_val
-    return (values + 1.0) * domain_width / 2.0 + min_val
+    # Inverse of x/4 - 1 is (x + 1) * 4
+    # This maps [-1, 1] -> [0, 8]
+    return (values + 1.0) * 4.0
 
 
 def generate_test_points(epsilon: float, random_seed: int = None) -> Tuple[np.ndarray, np.ndarray]:
@@ -123,10 +125,8 @@ def generate_test_points(epsilon: float, random_seed: int = None) -> Tuple[np.nd
     
     # Apply domain rescaling if configured
     if config.USE_RESCALED:
-        # Calculate domain bounds with epsilon padding
-        domain_min = config.MIN_VAL - epsilon
-        domain_max = config.MAX_VAL + epsilon
-        all_points = rescale_to_unit_interval(all_points, domain_min, domain_max)
+        # Use simple x/4 - 1 rescaling (no epsilon padding needed)
+        all_points = rescale_to_unit_interval(all_points)
     
     return all_points, all_labels
 
@@ -173,13 +173,8 @@ def get_desired_value_in_domain(epsilon: float = 0.0) -> float:
         Desired value location in current domain (original or rescaled)
     """
     if config.USE_RESCALED:
-        # Calculate domain bounds with epsilon padding for rescaling
-        domain_min = config.MIN_VAL - epsilon
-        domain_max = config.MAX_VAL + epsilon
-        # Rescale desired value to [-1, 1] domain
-        return rescale_to_unit_interval(
-            np.array([config.DESIRED_VALUE]), domain_min, domain_max
-        )[0]
+        # Rescale desired value to [-1, 1] domain using x/4 - 1
+        return rescale_to_unit_interval(np.array([config.DESIRED_VALUE]))[0]
     else:
         return config.DESIRED_VALUE
 
@@ -213,6 +208,10 @@ def validate_test_data(points: np.ndarray, labels: np.ndarray) -> bool:
     if config.USE_RESCALED:
         if np.min(points) < -1.1 or np.max(points) > 1.1:  # Allow small tolerance
             print(f"Error: Rescaled points outside [-1,1]: [{np.min(points):.3f}, {np.max(points):.3f}]")
+            return False
+    else:
+        if np.min(points) < 0 or np.max(points) > config.MAX_VAL:
+            print(f"Error: Points outside [0,{config.MAX_VAL}]: [{np.min(points):.3f}, {np.max(points):.3f}]")
             return False
     
     # Count desired vs non-desired points
@@ -268,40 +267,46 @@ if __name__ == "__main__":
         desired_points = generate_approximate_integers(desired_value, epsilon, demo_points, 42+i)
         print(f"Desired ({desired_value}) ± {epsilon}: {desired_points}")
         
-        # Generate non-desired value points (around 0, 1, 3)
-        for non_desired in [0, 1, 3]:
-            non_desired_points = generate_approximate_integers(float(non_desired), epsilon, demo_points, 42+i+non_desired)
-            print(f"Non-desired ({non_desired}) ± {epsilon}: {non_desired_points}")
+        # Generate points around key values: desired (2.0), boundaries (0, 8), and near-desired (1)
+        test_values = [0, 1, 2.0, 8]  # Include desired value and boundary cases
+        for test_val in test_values:
+            if test_val == 2.0:
+                label = "Desired"
+            elif test_val in [0, 8]:
+                label = "Boundary"
+            else:
+                label = "Non-desired"
+            test_points = generate_approximate_integers(test_val, epsilon, demo_points, 42+i+int(test_val*10))
+            print(f"{label} ({test_val}) ± {epsilon}: {test_points}")
         
-        # Show rescaling for this epsilon
-        print(f"\nRescaling with epsilon {epsilon}:")
-        extended_min = 0.0 - epsilon  # MIN_VAL - epsilon
-        extended_max = 8.0 + epsilon  # MAX_VAL + epsilon
+        # Show rescaling for this epsilon using x/4 - 1
+        print(f"\nRescaling with x/4 - 1 transformation:")
         
-        # Rescale desired points
-        rescaled_desired = rescale_to_unit_interval(desired_points, extended_min, extended_max)
-        rescaled_epsilon = 2 * epsilon / (extended_max - extended_min)
-        rescaled_desired_center = rescale_to_unit_interval(np.array([desired_value]), extended_min, extended_max)[0]
+        # Rescale desired points using x/4 - 1
+        rescaled_desired = rescale_to_unit_interval(desired_points)
+        rescaled_desired_center = rescale_to_unit_interval(np.array([desired_value]))[0]
         
-        print(f"  Extended domain: [{extended_min:.6f}, {extended_max:.6f}] → [-1, 1]")
-        print(f"  Original epsilon: {epsilon} → Rescaled epsilon: {rescaled_epsilon:.6f}")
+        print(f"  Domain: [0, 8] → [-1, 1] using x/4 - 1")
         print(f"  Desired value: {desired_value} → {rescaled_desired_center:.6f}")
         print(f"  Rescaled desired points: {rescaled_desired}")
     
-    print(f"\n--- RESCALING VERIFICATION ---")
-    # Test round-trip rescaling accuracy
-    test_epsilon = 0.01
-    extended_min = 0.0 - test_epsilon
-    extended_max = 8.0 + test_epsilon
+    print(f"\n--- RESCALING VERIFICATION (x/4 - 1) ---")
+    # Test round-trip rescaling accuracy with new transformation
     
-    test_values = np.array([extended_min, 0.0, 2.0, 8.0, extended_max])
-    rescaled = rescale_to_unit_interval(test_values, extended_min, extended_max)
-    recovered = rescale_from_unit_interval(rescaled, extended_min, extended_max)
+    test_values = np.array([0.0, 2.0, 4.0, 8.0])  # Key values in [0, 8]
+    rescaled = rescale_to_unit_interval(test_values)
+    recovered = rescale_from_unit_interval(rescaled)
     
-    print("Round-trip test:")
+    print("Round-trip test (x/4 - 1):")
     for orig, resc, recov in zip(test_values, rescaled, recovered):
         error = abs(orig - recov)
         print(f"  {orig:.6f} → {resc:.6f} → {recov:.6f} (error: {error:.2e})")
     
     max_error = np.max(np.abs(test_values - recovered))
     print(f"Max error: {max_error:.2e} {'✓ PASS' if max_error < 1e-10 else '✗ FAIL'}")
+    
+    # Verify specific transformation values
+    print("\nKey transformation points:")
+    print(f"  0 → {0/4 - 1} (should be -1.0)")
+    print(f"  4 → {4/4 - 1} (should be 0.0)")
+    print(f"  8 → {8/4 - 1} (should be 1.0)")
