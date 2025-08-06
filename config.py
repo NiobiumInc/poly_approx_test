@@ -9,11 +9,11 @@ import random
 import string
 
 # === Output Configuration ===
-DATE_FOLDER = "aug5_0"  # Change this to update ALL output paths
+DATE_FOLDER = "aug6_3"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
-FUNCTION_TYPE = "impulse"  # Options: "impulse", "plateau_sine", "plateau_reg"
+FUNCTION_TYPE = "plateau_sine"  # Options: "impulse", "plateau_sine", "plateau_reg"
 POINTS_PER_VALUE = 1000  # How many test points per integer value (0, 1, 2, etc.)
 USE_RESCALED = True  # True: [-1,1] domain, False: [0,8] domain
 
@@ -24,7 +24,7 @@ MIN_VAL = 0.0  # Minimum domain value (when not rescaled)
 
 # === Epsilon Testing ===
 MIN_EPSILON = 0.000001  # Minimum epsilon for testing
-MAX_EPSILON = 0.05  # Maximum epsilon for testing  
+MAX_EPSILON = 0.04  # Maximum epsilon for testing  
 NUM_EPSILON_VALUES = 20  # Number of epsilon values to test
 
 # === Chebyshev Approximation Settings ===
@@ -40,8 +40,8 @@ IMPULSE = {
 PLATEAU_SINE = {
     "amplitude": 0.001,  # Amplitude of internal ripples
     "base_amp": 0.001,  # Base wave amplitude  
-    "base_freq": 10,  # Base wave frequency
-    "freq": 25,  # Internal ripple frequency
+    "base_freq": 50,  # Base wave frequency
+    "freq": 50,  # Internal ripple frequency
     "steepness": 100,  # Steepness of sigmoid transitions
     "width": 1.0,  # Width of plateau region
 }
@@ -50,9 +50,6 @@ PLATEAU_SINE = {
 ROUND_PRECISION = 4  # Decimal precision for outputs
 
 
-def create_run_id() -> str:
-    """Create a unique 4-character run ID."""
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
 
 
 def get_function_params(function_type: str = None) -> dict:

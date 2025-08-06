@@ -42,8 +42,8 @@ def calculate_approximation_errors(
     else:
         domain_bounds = (config.MIN_VAL, config.MAX_VAL)
     
-    # Evaluate true function at test points
-    true_values = np.array([func(x, epsilon) for x in test_points])
+    # Evaluate true function at test points (vectorized for efficiency)
+    true_values = utils.vectorized_function_evaluation(func, test_points, epsilon)
     
     # Create function wrapper for Chebyshev approximation
     def func_wrapper(x):
@@ -101,22 +101,26 @@ def analyze_by_region(
     desired_errors = errors[desired_mask]
     non_desired_errors = errors[non_desired_mask]
     
+    # Calculate statistics using centralized utility function
+    desired_stats = utils.calculate_statistics(desired_errors.tolist())
+    non_desired_stats = utils.calculate_statistics(non_desired_errors.tolist())
+    
     results = {
         'desired': {
-            'count': len(desired_errors),
-            'mean_error': np.mean(desired_errors) if len(desired_errors) > 0 else 0.0,
-            'max_error': np.max(desired_errors) if len(desired_errors) > 0 else 0.0,
-            'min_error': np.min(desired_errors) if len(desired_errors) > 0 else 0.0,
-            'std_error': np.std(desired_errors) if len(desired_errors) > 0 else 0.0,
-            'median_error': np.median(desired_errors) if len(desired_errors) > 0 else 0.0
+            'count': desired_stats['count'],
+            'mean_error': desired_stats['mean'],
+            'max_error': desired_stats['max'],
+            'min_error': desired_stats['min'],
+            'std_error': desired_stats['std'],
+            'median_error': desired_stats['median']
         },
         'non_desired': {
-            'count': len(non_desired_errors),
-            'mean_error': np.mean(non_desired_errors) if len(non_desired_errors) > 0 else 0.0,
-            'max_error': np.max(non_desired_errors) if len(non_desired_errors) > 0 else 0.0,
-            'min_error': np.min(non_desired_errors) if len(non_desired_errors) > 0 else 0.0,
-            'std_error': np.std(non_desired_errors) if len(non_desired_errors) > 0 else 0.0,
-            'median_error': np.median(non_desired_errors) if len(non_desired_errors) > 0 else 0.0
+            'count': non_desired_stats['count'],
+            'mean_error': non_desired_stats['mean'],
+            'max_error': non_desired_stats['max'],
+            'min_error': non_desired_stats['min'],
+            'std_error': non_desired_stats['std'],
+            'median_error': non_desired_stats['median']
         }
     }
     

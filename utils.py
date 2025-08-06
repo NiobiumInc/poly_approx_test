@@ -6,6 +6,7 @@ polynomial approximation analysis system.
 """
 
 import os
+import csv
 import random
 import string
 import numpy as np
@@ -199,6 +200,22 @@ def get_file_extension(filename: str) -> str:
     return Path(filename).suffix.lstrip('.')
 
 
+def log_to_csv(log_path: Path, log_entry: dict) -> None:
+    """
+    Log a dictionary entry to CSV file, creating headers if file doesn't exist.
+    
+    Args:
+        log_path: Path to the CSV log file
+        log_entry: Dictionary to log as a CSV row
+    """
+    file_exists = log_path.exists()
+    with open(log_path, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=log_entry.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(log_entry)
+
+
 def create_output_filename(base_name: str, suffix: str = "", 
                           extension: str = "csv", unique_id: str = None) -> str:
     """
@@ -292,6 +309,47 @@ def memory_usage_mb() -> float:
         return process.memory_info().rss / 1024 / 1024
     except ImportError:
         return 0.0  # Return 0 if psutil not available
+
+
+def vectorized_function_evaluation(func, test_points, *args, **kwargs):
+    """
+    Efficiently evaluate a function over array of points.
+    
+    Args:
+        func: Function to evaluate  
+        test_points: Array of evaluation points
+        *args, **kwargs: Additional arguments to pass to func
+        
+    Returns:
+        Array of function values
+    """
+    # Try vectorized evaluation first
+    try:
+        return np.vectorize(func)(test_points, *args, **kwargs)
+    except:
+        # Fall back to list comprehension if vectorization fails
+        return np.array([func(x, *args, **kwargs) for x in test_points])
+
+
+def batch_process_large_arrays(func, data_array, batch_size: int = 10000):
+    """
+    Process large arrays in batches to manage memory usage.
+    
+    Args:
+        func: Function to apply to each batch
+        data_array: Large array to process
+        batch_size: Size of each processing batch
+        
+    Returns:
+        Concatenated results from all batches
+    """
+    results = []
+    for i in range(0, len(data_array), batch_size):
+        batch = data_array[i:i + batch_size]
+        batch_result = func(batch)
+        results.append(batch_result)
+    
+    return np.concatenate(results) if results else np.array([])
 
 
 def timer_context():

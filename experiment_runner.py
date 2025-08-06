@@ -6,10 +6,10 @@ combining error analysis, visualization, and result logging.
 """
 
 import time
-import uuid
 import csv
 from pathlib import Path
 from typing import Dict, List, Any, Callable, Optional
+from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -19,9 +19,30 @@ from error_analysis import run_complete_error_analysis
 from indicator_functions import get_indicator_function
 
 
-def generate_run_id() -> str:
-    """Generate a unique 8-character run identifier."""
-    return str(uuid.uuid4())[:8]
+def get_organized_output_paths(date_folder: str = None):
+    """
+    Get organized output paths with date-based folders.
+    
+    Args:
+        date_folder: Date folder name (defaults to 'aug6')
+        
+    Returns:
+        Dictionary with organized paths
+    """
+    if date_folder is None:
+        date_folder = "aug6"
+    
+    base_path = Path("graphs") / date_folder
+    log_path = base_path / "experiment_log.csv"
+    
+    return {
+        'base_path': base_path,
+        'impulse_path': base_path / "impulse",
+        'plateau_reg_path': base_path / "plateau_reg", 
+        'plateau_sine_path': base_path / "plateau_sine",
+        'comparison_path': base_path / "comparisons",
+        'log_path': log_path
+    }
 
 
 def run_single_experiment(
@@ -79,7 +100,7 @@ def run_epsilon_sweep_experiment(
     if degree is None:
         degree = 119
         
-    run_id = generate_run_id()
+    run_id = utils.create_unique_id(8)
     print(f"Starting epsilon sweep experiment (ID: {run_id})")
     print(f"Function: {function_name}")
     print(f"Epsilon values: {epsilon_values}")
@@ -156,7 +177,7 @@ def run_multi_function_experiment(
     if degree is None:
         degree = 119
         
-    master_run_id = generate_run_id()
+    master_run_id = utils.create_unique_id(8)
     print(f"Starting multi-function experiment (ID: {master_run_id})")
     print(f"Functions: {function_names}")
     print(f"Epsilon values: {epsilon_values}")
@@ -220,11 +241,20 @@ def _create_epsilon_sweep_plot(results: Dict[str, Any]) -> None:
     
     plt.tight_layout()
     
-    # Save plot
-    graphs_dir = Path("graphs")
-    graphs_dir.mkdir(exist_ok=True)
+    # Save plot in organized directory structure
+    output_paths = get_organized_output_paths()
+    function_name = results['function_name']
     
-    plot_path = graphs_dir / f"{results['function_name']}_epsilon_sweep_{results['run_id']}.png"
+    if function_name == 'impulse':
+        save_dir = utils.ensure_directory_exists(output_paths['impulse_path'])
+    elif function_name == 'plateau_reg':
+        save_dir = utils.ensure_directory_exists(output_paths['plateau_reg_path'])
+    elif function_name == 'plateau_sine':
+        save_dir = utils.ensure_directory_exists(output_paths['plateau_sine_path'])
+    else:
+        save_dir = utils.ensure_directory_exists(output_paths['base_path'])
+    
+    plot_path = save_dir / f"{function_name}_epsilon_sweep_{results['run_id']}.png"
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
     
@@ -309,11 +339,11 @@ def _create_multi_function_comparison_plot(results: Dict[str, Any]) -> None:
     
     plt.tight_layout()
     
-    # Save plot
-    graphs_dir = Path("graphs")
-    graphs_dir.mkdir(exist_ok=True)
+    # Save plot in organized directory structure
+    output_paths = get_organized_output_paths()
+    save_dir = utils.ensure_directory_exists(output_paths['comparison_path'])
     
-    plot_path = graphs_dir / f"multi_function_comparison_{results['master_run_id']}.png"
+    plot_path = save_dir / f"multi_function_comparison_{results['master_run_id']}.png"
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
     
@@ -322,7 +352,9 @@ def _create_multi_function_comparison_plot(results: Dict[str, Any]) -> None:
 
 def _log_epsilon_sweep_experiment(results: Dict[str, Any]) -> None:
     """Log epsilon sweep experiment results to CSV."""
-    log_path = Path("experiment_log.csv")
+    output_paths = get_organized_output_paths()
+    utils.ensure_directory_exists(output_paths['base_path'])
+    log_path = output_paths['log_path']
     
     # Prepare log entry
     log_entry = {
@@ -338,20 +370,17 @@ def _log_epsilon_sweep_experiment(results: Dict[str, Any]) -> None:
         'mean_error_ratio': np.mean(results['summary']['error_ratios'])
     }
     
-    # Write to CSV
-    file_exists = log_path.exists()
-    with open(log_path, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=log_entry.keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(log_entry)
+    # Write to CSV using centralized logging
+    utils.log_to_csv(log_path, log_entry)
     
     print(f"Experiment logged to: {log_path}")
 
 
 def _log_multi_function_experiment(results: Dict[str, Any]) -> None:
     """Log multi-function experiment results to CSV."""
-    log_path = Path("experiment_log.csv")
+    output_paths = get_organized_output_paths()
+    utils.ensure_directory_exists(output_paths['base_path'])
+    log_path = output_paths['log_path']
     
     # Prepare log entry
     log_entry = {
@@ -367,13 +396,8 @@ def _log_multi_function_experiment(results: Dict[str, Any]) -> None:
         'mean_error_ratio': 'varies'
     }
     
-    # Write to CSV
-    file_exists = log_path.exists()
-    with open(log_path, 'a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=log_entry.keys())
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(log_entry)
+    # Write to CSV using centralized logging
+    utils.log_to_csv(log_path, log_entry)
     
     print(f"Multi-function experiment logged to: {log_path}")
 
