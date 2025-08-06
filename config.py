@@ -32,7 +32,7 @@ CHEB_DEGREE = 119  # Degree of Chebyshev polynomial approximation
 
 # === Function-Specific Parameters ===
 IMPULSE = {
-    "sigma": 0.04,  # Standard deviation of Gaussian
+    "sigma": 0.04,  # Standard deviation of Gaussian (default width)
     "mu": 0.0,  # Mean offset (0 = use DESIRED_VALUE)
     "scaling": 1.0,  # Amplitude scaling factor
 }
