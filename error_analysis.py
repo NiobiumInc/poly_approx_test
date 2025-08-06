@@ -253,19 +253,19 @@ def run_complete_error_analysis(
     # Get indicator function
     indicator_func = get_indicator_function(function_name)
     
-    # Calculate approximation errors (Chebyshev vs true function)
+    # Calculate approximation errors (get Chebyshev approximation values)
     true_values, approx_values = calculate_approximation_errors(
         indicator_func, test_points, epsilon, degree
     )
-    chebyshev_errors = np.abs(true_values - approx_values)
+    # Compare Chebyshev approximation to expected binary labels (0/1)
+    chebyshev_errors = np.abs(approx_values - expected_labels)
     
-    # Calculate expected errors (function vs binary labels)
-    expected_errors_true = calculate_expected_errors(true_values, expected_labels)
-    expected_errors_approx = calculate_expected_errors(approx_values, expected_labels)
+    # Compare original function to expected binary labels (0/1)
+    function_errors = np.abs(true_values - expected_labels)
     
     # Analyze by region
     chebyshev_region_analysis = analyze_by_region(chebyshev_errors, expected_labels, test_points)
-    expected_region_analysis = analyze_by_region(expected_errors_true, expected_labels, test_points)
+    function_region_analysis = analyze_by_region(function_errors, expected_labels, test_points)
     
     # Compile results
     results = {
@@ -284,15 +284,11 @@ def run_complete_error_analysis(
             'chebyshev_region_analysis': chebyshev_region_analysis
         },
         'function_performance': {
-            'mean_expected_error': float(np.mean(expected_errors_true)),
-            'max_expected_error': float(np.max(expected_errors_true)),
-            'expected_region_analysis': expected_region_analysis
+            'mean_expected_error': float(np.mean(function_errors)),
+            'max_expected_error': float(np.max(function_errors)),
+            'expected_region_analysis': function_region_analysis
         },
-        'approximation_impact': {
-            'mean_approximation_degradation': float(np.mean(expected_errors_approx - expected_errors_true)),
-            'max_approximation_degradation': float(np.max(expected_errors_approx - expected_errors_true))
-        },
-        'region_analysis': expected_region_analysis  # For aggregation compatibility
+        'region_analysis': function_region_analysis  # For aggregation compatibility
     }
     
     return results

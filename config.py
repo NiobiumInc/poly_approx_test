@@ -9,11 +9,11 @@ import random
 import string
 
 # === Output Configuration ===
-DATE_FOLDER = "aug6_3"  # Change this to update ALL output paths
+DATE_FOLDER = "aug6_7"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
-FUNCTION_TYPE = "plateau_sine"  # Options: "impulse", "plateau_sine", "plateau_reg"
+FUNCTION_TYPE = "plateau_reg"  # Options: "impulse", "plateau_sine", "plateau_reg"
 POINTS_PER_VALUE = 1000  # How many test points per integer value (0, 1, 2, etc.)
 USE_RESCALED = True  # True: [-1,1] domain, False: [0,8] domain
 
@@ -23,9 +23,9 @@ MAX_VAL = 8.0  # Maximum domain value (when not rescaled)
 MIN_VAL = 0.0  # Minimum domain value (when not rescaled)
 
 # === Epsilon Testing ===
-MIN_EPSILON = 0.000001  # Minimum epsilon for testing
-MAX_EPSILON = 0.04  # Maximum epsilon for testing  
-NUM_EPSILON_VALUES = 20  # Number of epsilon values to test
+MIN_EPSILON = 0.001  # Minimum epsilon for testing
+MAX_EPSILON = 0.4  # Maximum epsilon for testing  
+NUM_EPSILON_VALUES = 50  # Number of epsilon values to test
 
 # === Chebyshev Approximation Settings ===
 CHEB_DEGREE = 119  # Degree of Chebyshev polynomial approximation
