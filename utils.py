@@ -378,6 +378,7 @@ def timer_context():
     return Timer()
 
 
+
 if __name__ == "__main__":
     print("=== UTILITY FUNCTIONS TEST ===")
     

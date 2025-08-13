@@ -5,16 +5,13 @@ This module contains all configurable parameters for the system.
 Modify values directly in this file to customize analysis behavior.
 """
 
-import random
-import string
-
 # === Output Configuration ===
-DATE_FOLDER = "aug6_test"  # Change this to update ALL output paths
+DATE_FOLDER = "aug13_2"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
-FUNCTION_TYPE = "plateau_reg"  # Options: "impulse", "plateau_sine", "plateau_reg"
-POINTS_PER_VALUE = 1000  # How many test points per integer value (0, 1, 2, etc.)
+FUNCTION_TYPE = "impulse"  # Options: "impulse", "plateau_sine", "plateau_reg"
+POINTS_PER_VALUE = 500  # How many test points per integer value (0, 1, 2, etc.)
 USE_RESCALED = True  # True: [-1,1] domain, False: [0,8] domain
 
 # === Domain Settings ===

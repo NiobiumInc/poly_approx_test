@@ -294,6 +294,191 @@ def run_complete_error_analysis(
     return results
 
 
+def get_output_paths():
+    """Get organized output paths based on config."""
+    from pathlib import Path
+    
+    if hasattr(config, 'GRAPHS_BASE_PATH'):
+        base_path = Path(config.GRAPHS_BASE_PATH)
+    else:
+        base_path = Path("graphs") / "aug6"
+    
+    function_path = base_path / config.FUNCTION_TYPE
+    log_path = base_path / "experiment_log.csv"
+    
+    return {
+        'base_path': base_path,
+        'function_path': function_path,
+        'log_path': log_path
+    }
+
+
+def print_banner():
+    """Print application banner."""
+    print("=" * 60)
+    print("  POLYNOMIAL APPROXIMATION ANALYSIS")
+    print(f"  Function: {config.FUNCTION_TYPE}")
+    print(f"  Domain: {'rescaled [-1,1]' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}")
+    print(f"  Epsilon range: {config.MIN_EPSILON} to {config.MAX_EPSILON}")
+    print(f"  Degree: {config.CHEB_DEGREE}")
+    print("=" * 60)
+
+
+def generate_epsilon_values():
+    """Generate epsilon values based on config settings."""
+    import numpy as np
+    import config
+    return np.logspace(
+        np.log10(config.MIN_EPSILON),
+        np.log10(config.MAX_EPSILON), 
+        config.NUM_EPSILON_VALUES
+    )
+
+
+def run_config_based_analysis() -> Dict[str, Any]:
+    """
+    Run analysis based on config.py settings.
+    
+    Returns:
+        Dictionary containing analysis results
+    """
+    import time
+    import utils
+    
+    print_banner()
+    
+    # Generate unique run ID
+    run_id = utils.create_unique_id(4)
+    print(f"\nRun ID: {run_id}")
+    
+    # Setup output directories
+    output_paths = get_output_paths()
+    utils.ensure_directory_exists(output_paths['base_path'])
+    utils.ensure_directory_exists(output_paths['function_path'])
+    
+    # Generate epsilon values from config
+    epsilon_values = generate_epsilon_values()
+    
+    print(f"Running analysis with {len(epsilon_values)} epsilon values")
+    print(f"Epsilon values: {epsilon_values[0]:.2e} to {epsilon_values[-1]:.2e}")
+    
+    results = {
+        'run_id': run_id,
+        'function_name': config.FUNCTION_TYPE,
+        'epsilon_values': epsilon_values.tolist(),
+        'individual_results': [],
+        'summary': {
+            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'total_experiments': len(epsilon_values)
+        }
+    }
+    
+    # Run analysis for each epsilon value
+    for i, epsilon in enumerate(epsilon_values):
+        print(f"\nProgress: {i+1}/{len(epsilon_values)} - ε = {epsilon:.2e}")
+        
+        try:
+            result = run_complete_error_analysis(
+                function_name=config.FUNCTION_TYPE,
+                epsilon=epsilon,
+                degree=config.CHEB_DEGREE,
+                random_seed=42
+            )
+            
+            results['individual_results'].append(result)
+            
+            # Print key metrics
+            cheb_error = result['approximation_quality']['mean_chebyshev_error']
+            func_error = result['function_performance']['mean_expected_error']
+            
+            print(f"  Chebyshev error: {cheb_error:.2e}")
+            print(f"  Function error: {func_error:.2e}")
+            
+        except Exception as e:
+            print(f"  Error: {e}")
+            continue
+    
+    return results
+
+
+def extract_result_metrics(result: Dict[str, Any]) -> Dict[str, float]:
+    """Extract key metrics from a single result for reuse."""
+    epsilon = result['epsilon']
+    cheb_error = result['approximation_quality']['mean_chebyshev_error']
+    func_error = result['function_performance']['mean_expected_error']
+    ratio = func_error / cheb_error if cheb_error > 0 else float('inf')
+    
+    return {
+        'epsilon': epsilon,
+        'cheb_error': cheb_error, 
+        'func_error': func_error,
+        'ratio': ratio
+    }
+
+
+def save_results(results: Dict[str, Any]):
+    """Save results to organized output structure."""
+    output_paths = get_output_paths()
+    
+    # Create summary report
+    summary_lines = [
+        "POLYNOMIAL APPROXIMATION ANALYSIS RESULTS",
+        "=" * 50,
+        f"Function: {results['function_name']}",
+        f"Analysis completed: {results['summary']['timestamp']}",
+        f"Total experiments: {results['summary']['total_experiments']}",
+        f"Configuration:",
+        f"  Domain: {'rescaled [-1,1]' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}",
+        f"  Chebyshev degree: {config.CHEB_DEGREE}",
+        f"  Points per value: {config.POINTS_PER_VALUE}",
+        "",
+        "EPSILON ANALYSIS SUMMARY:",
+        "-" * 25
+    ]
+    
+    # Add epsilon-specific results and build CSV data simultaneously
+    csv_lines = ['epsilon,chebyshev_error,function_error,error_ratio']
+    
+    for result in results['individual_results']:
+        metrics = extract_result_metrics(result)
+        
+        # Add to summary
+        summary_lines.extend([
+            f"ε = {metrics['epsilon']:.2e}:",
+            f"  Chebyshev error: {metrics['cheb_error']:.2e}",
+            f"  Function error: {metrics['func_error']:.2e}",
+            f"  Error ratio: {metrics['ratio']:.1f}",
+            ""
+        ])
+        
+        # Add to CSV
+        csv_lines.append(f"{metrics['epsilon']},{metrics['cheb_error']},{metrics['func_error']},{metrics['ratio']}")
+    
+    # Add output locations
+    summary_lines.extend([
+        "OUTPUT LOCATIONS:",
+        "-" * 17,
+        f"Base directory: {output_paths['base_path']}",
+        f"Function plots: {output_paths['function_path']}",
+        f"Summary: {output_paths['function_path'] / ('analysis_summary_' + results['run_id'] + '.txt')}"
+    ])
+    
+    # Save summary
+    summary_path = output_paths['function_path'] / f'analysis_summary_{results["run_id"]}.txt'
+    with open(summary_path, 'w') as f:
+        f.write('\n'.join(summary_lines))
+    
+    # Save detailed results as CSV
+    csv_path = output_paths['function_path'] / f"{config.FUNCTION_TYPE}_detailed_results_{results['run_id']}.csv"
+    
+    with open(csv_path, 'w') as f:
+        f.write('\n'.join(csv_lines))
+    
+    print(f"\nResults saved:")
+    print(f"  Summary: {summary_path}")
+    print(f"  Detailed CSV: {csv_path}")
+
+
 def print_error_analysis_summary(results: Dict[str, Any]):
     """
     Print a formatted summary of error analysis results with proper precision.
