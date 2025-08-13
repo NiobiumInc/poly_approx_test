@@ -67,7 +67,7 @@ def run_config_based_analysis() -> Dict[str, Any]:
     print_banner()
     
     # Generate unique run ID
-    run_id = utils.create_unique_id(8)
+    run_id = utils.create_unique_id(4)
     print(f"\nRun ID: {run_id}")
     
     # Setup output directories
@@ -363,11 +363,11 @@ def save_results(results: Dict[str, Any]):
         "-" * 17,
         f"Base directory: {output_paths['base_path']}",
         f"Function plots: {output_paths['function_path']}",
-        f"Summary: {output_paths['base_path'] / 'analysis_summary.txt'}"
+        f"Summary: {output_paths['function_path'] / ('analysis_summary_' + results['run_id'] + '.txt')}"
     ])
     
     # Save summary
-    summary_path = output_paths['base_path'] / 'analysis_summary.txt'
+    summary_path = output_paths['function_path'] / f'analysis_summary_{results["run_id"]}.txt'
     with open(summary_path, 'w') as f:
         f.write('\n'.join(summary_lines))
     
