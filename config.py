@@ -9,7 +9,7 @@ import random
 import string
 
 # === Output Configuration ===
-DATE_FOLDER = "aug6_7"  # Change this to update ALL output paths
+DATE_FOLDER = "aug6_test"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
