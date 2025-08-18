@@ -6,12 +6,12 @@ Modify values directly in this file to customize analysis behavior.
 """
 
 # === Output Configuration ===
-DATE_FOLDER = "aug13_2"  # Change this to update ALL output paths
+DATE_FOLDER = "aug18_1"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
-FUNCTION_TYPE = "impulse"  # Options: "impulse", "plateau_sine", "plateau_reg"
-POINTS_PER_VALUE = 500  # How many test points per integer value (0, 1, 2, etc.)
+FUNCTION_TYPE = "plateau_sine_impulse"  # Options: "impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse"
+POINTS_PER_VALUE = 1000  # How many test points per integer value (0, 1, 2, etc.)
 USE_RESCALED = True  # True: [-1,1] domain, False: [0,8] domain
 
 # === Domain Settings ===
@@ -21,8 +21,9 @@ MIN_VAL = 0.0  # Minimum domain value (when not rescaled)
 
 # === Epsilon Testing ===
 MIN_EPSILON = 0.001  # Minimum epsilon for testing
-MAX_EPSILON = 0.4  # Maximum epsilon for testing  
+MAX_EPSILON = 0.49  # Maximum epsilon for testing  
 NUM_EPSILON_VALUES = 50  # Number of epsilon values to test
+EXACTLY_EPSILON = True  # True: generate points exactly epsilon away, False: random within epsilon distance
 
 # === Chebyshev Approximation Settings ===
 CHEB_DEGREE = 119  # Degree of Chebyshev polynomial approximation
@@ -43,6 +44,15 @@ PLATEAU_SINE = {
     "width": 1.0,  # Width of plateau region
 }
 
+# PLATEAU_SINE = {
+#     "amplitude": 0.001,  # Amplitude of internal ripples
+#     "base_amp": 0.0000001,  # Base wave amplitude  
+#     "base_freq": 25,  # Base wave frequency
+#     "freq": 50,  # Internal ripple frequency
+#     "steepness": 200,  # Steepness of sigmoid transitions
+#     "width": 1.0,  # Width of plateau region
+# }
+
 # === Output Settings ===
 ROUND_PRECISION = 4  # Decimal precision for outputs
 
@@ -55,7 +65,7 @@ def get_function_params(function_type: str = None) -> dict:
     
     if func_type == "impulse":
         return IMPULSE.copy()
-    elif func_type in ["plateau_sine", "plateau_reg"]:
+    elif func_type in ["plateau_sine", "plateau_reg", "plateau_sine_impulse"]:
         return PLATEAU_SINE.copy()
     else:
         raise ValueError(f"Unknown function type: {func_type}")
@@ -68,6 +78,7 @@ def print_config():
     print(f"Domain: {'[-1,1]' if USE_RESCALED else f'[{MIN_VAL},{MAX_VAL}]'}")
     print(f"Desired Value: {DESIRED_VALUE}")
     print(f"Epsilon Range: {MIN_EPSILON} to {MAX_EPSILON} ({NUM_EPSILON_VALUES} values)")
+    print(f"Exactly Epsilon: {EXACTLY_EPSILON}")
     print(f"Chebyshev Degree: {CHEB_DEGREE}")
     print(f"Points per Value: {POINTS_PER_VALUE}")
     print(f"Output Path: {GRAPHS_BASE_PATH}")

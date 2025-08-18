@@ -142,6 +142,90 @@ def plateau_reg(x: float, epsilon: float = 0) -> float:
         return 1.0 if (config.DESIRED_VALUE - 0.5 <= x <= config.DESIRED_VALUE + 0.5) else 0.0
 
 
+def plateau_sine_impulse(x: float, epsilon: float = 0) -> float:
+    """
+    Hybrid function: sinusoidal plateau in desired region, impulse function elsewhere.
+    
+    This function mathematically combines plateau_sine behavior around the desired value
+    with impulse (Gaussian) behavior in non-desired regions. The combination uses
+    smooth sigmoid transitions to avoid discontinuities.
+    
+    Mathematical approach:
+    - Define plateau region using same sigmoid transitions as plateau_sine
+    - In plateau region: use plateau_sine behavior (1 + ripples)
+    - Outside plateau: use impulse function behavior  
+    - Smooth blending between regions using plateau mask
+    
+    Args:
+        x: Input value
+        epsilon: Epsilon parameter (used for domain rescaling calculations)
+        
+    Returns:
+        Combined plateau-sine-impulse function value at x
+    """
+    # Get parameters from both function types
+    plateau_params = config.get_function_params("plateau_sine")
+    impulse_params = config.get_function_params("impulse")
+    
+    # Plateau sine parameters
+    sp_amplitude = plateau_params["amplitude"]
+    sp_base_amp = plateau_params["base_amp"]
+    sp_base_freq = plateau_params["base_freq"]
+    sp_freq = plateau_params["freq"]
+    sp_steepness = plateau_params["steepness"]
+    sp_width = plateau_params["width"]
+    
+    # Impulse parameters
+    imp_sigma = impulse_params["sigma"]
+    imp_mu = impulse_params["mu"]
+    imp_scaling = impulse_params["scaling"]
+    
+    # Determine center location and width
+    if config.USE_RESCALED:
+        # Rescale desired value to [-1, 1] domain using x/4 - 1
+        mu = rescale_to_unit_interval(np.array([config.DESIRED_VALUE]))[0]
+        # Adjust width for rescaled domain: [0,8] -> [-1,1] has scale factor of 1/4
+        width = sp_width / 4.0
+    else:
+        mu = config.DESIRED_VALUE
+        width = sp_width
+    
+    # Calculate impulse center
+    if imp_mu == 0:
+        impulse_center = mu  # Same as plateau center
+    else:
+        impulse_center = imp_mu
+    
+    # Sigmoid transitions for plateau region (same as plateau_sine)
+    rise = 1 / (1 + np.exp(-sp_steepness * (x - (mu - width / 2))))
+    fall = 1 / (1 + np.exp(-sp_steepness * (mu + width / 2 - x)))
+    
+    # Plateau mask (1 inside plateau, 0 outside)
+    plateau_mask = rise * fall
+    
+    # Plateau sine behavior (inside desired region)
+    # Base wave (present everywhere in original plateau_sine)
+    base_wave = sp_base_amp * np.sin(sp_base_freq * x * np.pi)
+    
+    # Ripples within the plateau
+    ripple_in_plateau = sp_amplitude * np.sin(sp_freq * x * np.pi)
+    
+    # Plateau sine component: main plateau (1 + ripples) + base wave
+    plateau_sine_component = (1 + ripple_in_plateau + base_wave)
+    
+    # Impulse behavior (outside desired region)
+    # Gaussian impulse function
+    x_shifted = x - impulse_center
+    sigma2 = 2 * imp_sigma**2
+    impulse_component = imp_scaling * np.exp(-(x_shifted**2) / sigma2)
+    
+    # Mathematical combination:
+    # - Inside plateau region: use plateau_sine behavior
+    # - Outside plateau region: use impulse behavior
+    # - Smooth transition via plateau_mask
+    return plateau_sine_component * plateau_mask + impulse_component * (1 - plateau_mask)
+
+
 def get_indicator_function(function_name: str) -> Callable[[float, float], float]:
     """
     Get an indicator function by name.
@@ -159,6 +243,7 @@ def get_indicator_function(function_name: str) -> Callable[[float, float], float
         "impulse": impulse,
         "plateau_sine": plateau_sine,
         "plateau_reg": plateau_reg,
+        "plateau_sine_impulse": plateau_sine_impulse,
     }
     
     if function_name not in function_map:
@@ -191,7 +276,7 @@ def create_function_summary() -> dict:
         Dictionary with function information and current parameter values
     """
     summary = {
-        "available_functions": ["impulse", "plateau_sine", "plateau_reg"],
+        "available_functions": ["impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse"],
         "current_function": config.FUNCTION_TYPE,
         "domain_mode": "rescaled [-1,1]" if config.USE_RESCALED else f"original [{config.MIN_VAL},{config.MAX_VAL}]",
         "desired_value": config.DESIRED_VALUE,

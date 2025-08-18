@@ -320,6 +320,7 @@ def print_banner():
     print(f"  Function: {config.FUNCTION_TYPE}")
     print(f"  Domain: {'rescaled [-1,1]' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}")
     print(f"  Epsilon range: {config.MIN_EPSILON} to {config.MAX_EPSILON}")
+    print(f"  Exactly epsilon: {config.EXACTLY_EPSILON}")
     print(f"  Degree: {config.CHEB_DEGREE}")
     print("=" * 60)
 
@@ -437,10 +438,19 @@ def save_results(results: Dict[str, Any]):
     ]
     
     # Add epsilon-specific results and build CSV data simultaneously
-    csv_lines = ['epsilon,chebyshev_error,function_error,error_ratio']
+    csv_lines = ['epsilon,chebyshev_error,function_error,error_ratio,cheb_desired_error,cheb_non_desired_error,func_desired_error,func_non_desired_error']
     
     for result in results['individual_results']:
         metrics = extract_result_metrics(result)
+        
+        # Extract region-specific errors
+        cheb_quality = result['approximation_quality']['chebyshev_region_analysis']
+        func_performance = result['function_performance']['expected_region_analysis']
+        
+        cheb_desired_error = cheb_quality['desired']['mean_error']
+        cheb_non_desired_error = cheb_quality['non_desired']['mean_error']
+        func_desired_error = func_performance['desired']['mean_error']
+        func_non_desired_error = func_performance['non_desired']['mean_error']
         
         # Add to summary
         summary_lines.extend([
@@ -451,8 +461,8 @@ def save_results(results: Dict[str, Any]):
             ""
         ])
         
-        # Add to CSV
-        csv_lines.append(f"{metrics['epsilon']},{metrics['cheb_error']},{metrics['func_error']},{metrics['ratio']}")
+        # Add to CSV with region-specific data
+        csv_lines.append(f"{metrics['epsilon']},{metrics['cheb_error']},{metrics['func_error']},{metrics['ratio']},{cheb_desired_error},{cheb_non_desired_error},{func_desired_error},{func_non_desired_error}")
     
     # Add output locations
     summary_lines.extend([

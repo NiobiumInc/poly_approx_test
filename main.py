@@ -28,6 +28,9 @@ def main():
         # Create error analysis plots
         create_graphs.create_connected_dot_plots(results)
         
+        # Create automatic comparison plots
+        create_graphs.create_automatic_comparisons(results)
+        
         # Save results
         save_results(results)
         
