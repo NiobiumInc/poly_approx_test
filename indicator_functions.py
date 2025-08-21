@@ -236,62 +236,6 @@ def plateau_sine_impulse(x: float, epsilon: float = 0) -> float:
     return plateau_component * plateau_mask + impulse_component * (1 - plateau_mask)
 
 
-def plateau_sine_impulse_clean(x: float, epsilon: float = 0) -> float:
-    """
-    Clean separation version - no frequency leakage.
-    
-    This version completely eliminates any oscillatory components outside the plateau
-    region to provide the cleanest possible impulse behavior for polynomial approximation.
-    
-    Mathematical approach:
-    - Plateau region: clean 1.0 + small localized ripples 
-    - Outside plateau: pure exponential decay only
-    - No global oscillatory components whatsoever
-    """
-    # Get parameters
-    plateau_params = config.get_function_params("plateau_sine")
-    impulse_params = config.get_function_params("impulse")
-    
-    sp_amplitude = plateau_params["amplitude"]
-    sp_freq = plateau_params["freq"]
-    sp_steepness = plateau_params["steepness"]
-    sp_width = plateau_params["width"]
-    
-    imp_sigma = impulse_params["sigma"]
-    imp_mu = impulse_params["mu"]
-    imp_scaling = impulse_params["scaling"]
-    
-    # Domain setup
-    if config.USE_RESCALED:
-        mu = rescale_to_unit_interval(np.array([config.DESIRED_VALUE]))[0]
-        width = sp_width / 4.0
-        sigma_rescaled = imp_sigma / 4.0
-    else:
-        mu = config.DESIRED_VALUE
-        width = sp_width
-        sigma_rescaled = imp_sigma
-    
-    impulse_center = mu if imp_mu == 0 else (rescale_to_unit_interval(np.array([imp_mu]))[0] if config.USE_RESCALED else imp_mu)
-    
-    # Sharp plateau definition
-    rise = 1 / (1 + np.exp(-sp_steepness * (x - (mu - width / 2))))
-    fall = 1 / (1 + np.exp(-sp_steepness * (mu + width / 2 - x)))
-    plateau_mask = rise * fall
-    
-    # CLEAN separation: oscillations ONLY exist inside plateau
-    if plateau_mask > 0.01:  # Only add ripples where plateau is significant
-        ripples = sp_amplitude * np.sin(sp_freq * x * np.pi)
-        plateau_component = 1.0 + ripples
-    else:
-        plateau_component = 0.0  # Clean zero outside plateau
-    
-    # Pure impulse (no oscillations)
-    x_shifted = x - impulse_center
-    impulse_component = imp_scaling * np.exp(-(x_shifted**2) / (2 * sigma_rescaled**2))
-    
-    return plateau_component * plateau_mask + impulse_component * (1 - plateau_mask)
-
-
 
 
 def get_indicator_function(function_name: str) -> Callable[[float, float], float]:
@@ -312,7 +256,6 @@ def get_indicator_function(function_name: str) -> Callable[[float, float], float
         "plateau_sine": plateau_sine,
         "plateau_reg": plateau_reg,
         "plateau_sine_impulse": plateau_sine_impulse,
-        "plateau_sine_impulse_clean": plateau_sine_impulse_clean,
     }
     
     if function_name not in function_map:
@@ -345,8 +288,7 @@ def create_function_summary() -> dict:
         Dictionary with function information and current parameter values
     """
     summary = {
-        "available_functions": ["impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse", 
-                               "plateau_sine_impulse_clean"],
+        "available_functions": ["impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse"],
         "current_function": config.FUNCTION_TYPE,
         "domain_mode": "rescaled [-1,1]" if config.USE_RESCALED else f"original [{config.MIN_VAL},{config.MAX_VAL}]",
         "desired_value": config.DESIRED_VALUE,

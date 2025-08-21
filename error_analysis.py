@@ -428,26 +428,176 @@ def extract_result_metrics(result: Dict[str, Any]) -> Dict[str, float]:
     }
 
 
+def get_function_latex(function_name: str) -> str:
+    """Generate LaTeX equation for the specified function with current parameters."""
+    if function_name == "impulse":
+        params = config.get_function_params("impulse")
+        sigma = params["sigma"]
+        mu_param = params["mu"]
+        scaling = params["scaling"]
+        
+        # Determine actual center based on configuration
+        if config.USE_RESCALED:
+            if mu_param == 0:
+                mu_display = "\\text{rescaled}(2.0)"
+            else:
+                mu_display = f"\\text{{rescaled}}({mu_param})"
+            sigma_display = f"{sigma}/4"  # Adjusted for rescaled domain
+        else:
+            mu_display = f"{config.DESIRED_VALUE}" if mu_param == 0 else f"{mu_param}"
+            sigma_display = f"{sigma}"
+            
+        return f"f(x) = {scaling} \\cdot \\exp\\left(-\\frac{{(x - {mu_display})^2}}{{2({sigma_display})^2}}\\right)"
+        
+    elif function_name == "plateau_sine":
+        params = config.get_function_params("plateau_sine")
+        base_amp = params["base_amp"]
+        base_freq = params["base_freq"]
+        amp = params["amplitude"]
+        freq = params["freq"]
+        steepness = params["steepness"]
+        width = params["width"]
+        
+        # Calculate actual rescaled values (don't use text placeholders)
+        if config.USE_RESCALED:
+            # Calculate the actual rescaled desired value: x/4 - 1 where x=2.0 gives -0.5
+            import numpy as np
+            import indicator_functions
+            mu_value = indicator_functions.rescale_to_unit_interval(np.array([config.DESIRED_VALUE]))[0]
+            width_value = width / 4.0
+        else:
+            mu_value = config.DESIRED_VALUE
+            width_value = width
+            
+        # Multi-line LaTeX format with parameter symbols
+        latex = "\\begin{align*}\n"
+        latex += "    B(x) &= \\alpha \\sin(\\phi \\pi x), \\\\\n"
+        latex += "    \\sigma_+(x) &= \\frac{1}{1 + e^{-\\kappa(x - (\\mu - \\frac{w}{2}))}}, \\\\\n"
+        latex += "    \\sigma_-(x) &= \\frac{1}{1 + e^{-\\kappa((\\mu + \\frac{w}{2}) - x)}}, \\\\\n"
+        latex += "    m(x) &= \\sigma_+(x) \\cdot \\sigma_-(x), \\\\\n"
+        latex += "    r(x) &= \\beta \\sin(\\gamma \\pi x), \\\\\n"
+        latex += "    f(x) &= [1 + r(x)] m(x) + B(x) [1 - m(x)].\n"
+        latex += "\\end{align*}\n\n"
+        latex += "with parameters:\n"
+        latex += "\\[\n"
+        latex += f"\\alpha = {base_amp}, \\quad \\phi = {base_freq}, \\quad \\kappa = {steepness}, \\quad w = {width_value:.3f}, \\quad \\beta = {amp}, \\quad \\gamma = {freq}, \\quad \\mu = {mu_value:.3f}.\n"
+        latex += "\\]"
+        
+        return latex
+        
+    elif function_name == "plateau_reg":
+        if config.USE_RESCALED:
+            mu_display = "\\text{rescaled}(2.0)"
+        else:
+            mu_display = f"{config.DESIRED_VALUE}"
+            
+        return f"f(x) = \\begin{{cases}} 1 & \\text{{if }} |x - {mu_display}| \\leq 0.5 \\\\ 0 & \\text{{otherwise}} \\end{{cases}}"
+        
+    elif function_name in ["plateau_sine_impulse", "plateau_sine_impulse_clean"]:
+        plateau_params = config.get_function_params("plateau_sine")
+        impulse_params = config.get_function_params("impulse")
+        
+        # This is complex - provide a general form
+        if function_name == "plateau_sine_impulse_clean":
+            return "f(x) = \\text{plateau}(x) \\cdot \\text{mask}(x) + \\text{impulse}(x) \\cdot (1 - \\text{mask}(x))"
+        else:
+            return "f(x) = \\text{plateau\\_sine}(x) \\cdot \\text{mask}(x) + \\text{impulse}(x) \\cdot (1 - \\text{mask}(x))"
+    
+    return f"f(x) = \\text{{Function not implemented: {function_name}}}"
+
+
+def get_chebyshev_latex(degree: int) -> str:
+    """Generate LaTeX equation for Chebyshev polynomial approximation."""
+    if degree <= 3:
+        # Show explicit form for low degrees
+        return f"P_{{{degree}}}(x) = \\sum_{{k=0}}^{{{degree}}} a_k T_k(x) = a_0 + a_1 T_1(x) + a_2 T_2(x)" + (f" + a_3 T_3(x)" if degree >= 3 else "")
+    else:
+        return f"P_{{{degree}}}(x) = \\sum_{{k=0}}^{{{degree}}} a_k T_k(x) \\quad \\text{{where }} T_k(x) \\text{{ are Chebyshev polynomials}}"
+
+
+def get_function_specific_params(function_name: str) -> Dict[str, Any]:
+    """Get only the relevant parameters for the specified function type."""
+    relevant_params = {}
+    
+    if function_name == "impulse":
+        relevant_params["impulse_params"] = config.IMPULSE.copy()
+    elif function_name in ["plateau_sine", "plateau_sine_impulse", "plateau_sine_impulse_clean"]:
+        relevant_params["plateau_sine_params"] = config.PLATEAU_SINE.copy()
+        if function_name in ["plateau_sine_impulse", "plateau_sine_impulse_clean"]:
+            relevant_params["impulse_params"] = config.IMPULSE.copy()
+    # plateau_reg has no additional parameters
+    
+    return relevant_params
+
+
 def save_results(results: Dict[str, Any]):
-    """Save results to organized output structure."""
+    """Save results to organized output structure with comprehensive configuration and LaTeX."""
     output_paths = get_output_paths()
     
-    # Create summary report
+    function_name = results['function_name']
+    
+    # Create comprehensive summary report
     summary_lines = [
         "POLYNOMIAL APPROXIMATION ANALYSIS RESULTS",
-        "=" * 50,
-        f"Function: {results['function_name']}",
+        "=" * 60,
+        "",
+        "FUNCTION INFORMATION:",
+        "-" * 21,
+        f"Target Function: {function_name}",
+        f"LaTeX: {get_function_latex(function_name)}",
+        "",
+        "APPROXIMATION METHOD:",
+        "-" * 21,
+        f"Method: Chebyshev Polynomial Approximation",
+        f"LaTeX: {get_chebyshev_latex(config.CHEB_DEGREE)}",
+        "",
+        "COMPLETE CONFIGURATION:",
+        "-" * 23,
         f"Analysis completed: {results['summary']['timestamp']}",
         f"Total experiments: {results['summary']['total_experiments']}",
-        f"Configuration:",
-        f"  Domain: {'rescaled [-1,1]' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}",
-        f"  Polynomial degree: {config.CHEB_DEGREE}",
-        f"  Method: Chebyshev",
-        f"  Points per value: {config.POINTS_PER_VALUE}",
         "",
-        "EPSILON ANALYSIS SUMMARY:",
-        "-" * 25
+        "Output Settings:",
+        f"  DATE_FOLDER: {config.DATE_FOLDER}",
+        f"  GRAPHS_BASE_PATH: {config.GRAPHS_BASE_PATH}",
+        f"  ROUND_PRECISION: {config.ROUND_PRECISION}",
+        "",
+        "Test Execution Settings:",
+        f"  FUNCTION_TYPE: {config.FUNCTION_TYPE}",
+        f"  POINTS_PER_VALUE: {config.POINTS_PER_VALUE}",
+        f"  USE_RESCALED: {config.USE_RESCALED}",
+        "",
+        "Domain Settings:",
+        f"  DESIRED_VALUE: {config.DESIRED_VALUE}",
+        f"  MAX_VAL: {config.MAX_VAL}",
+        f"  MIN_VAL: {config.MIN_VAL}",
+        f"  Effective domain: {'[-1,1] (rescaled)' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}",
+        "",
+        "Epsilon Testing:",
+        f"  MIN_EPSILON: {config.MIN_EPSILON}",
+        f"  MAX_EPSILON: {config.MAX_EPSILON}",
+        f"  NUM_EPSILON_VALUES: {config.NUM_EPSILON_VALUES}",
+        f"  EXACTLY_EPSILON: {config.EXACTLY_EPSILON}",
+        "",
+        "Polynomial Approximation Settings:",
+        f"  CHEB_DEGREE: {config.CHEB_DEGREE}",
+        ""
     ]
+    
+    # Add function-specific parameters
+    func_params = get_function_specific_params(function_name)
+    if func_params:
+        summary_lines.append("Function-Specific Parameters:")
+        for param_group, params in func_params.items():
+            summary_lines.append(f"  {param_group}:")
+            for key, value in params.items():
+                summary_lines.append(f"    {key}: {value}")
+        summary_lines.append("")
+    
+    # Add analysis results section
+    summary_lines.extend([
+        "EPSILON ANALYSIS SUMMARY:",
+        "-" * 26
+    ])
     
     # Add epsilon-specific results and build CSV data simultaneously
     # Determine method name for CSV header
