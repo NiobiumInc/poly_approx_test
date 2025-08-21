@@ -49,7 +49,7 @@ def calculate_approximation_errors(
     def func_wrapper(x):
         return func(x, epsilon)
     
-    # Evaluate Chebyshev approximation at test points
+    # Evaluate Chebyshev polynomial approximation at test points
     approx_values = eval_chebyshev_function(
         func_wrapper, 
         test_points.tolist(), 
@@ -257,21 +257,27 @@ def run_complete_error_analysis(
     true_values, approx_values = calculate_approximation_errors(
         indicator_func, test_points, epsilon, degree
     )
-    # Compare Chebyshev approximation to expected binary labels (0/1)
-    chebyshev_errors = np.abs(approx_values - expected_labels)
+    # Determine method name for labeling
+    method_name = "chebyshev"
+    method_display = "Chebyshev"
+    
+    # Compare polynomial approximation to expected binary labels (0/1)
+    approx_errors = np.abs(approx_values - expected_labels)
     
     # Compare original function to expected binary labels (0/1)
     function_errors = np.abs(true_values - expected_labels)
     
     # Analyze by region
-    chebyshev_region_analysis = analyze_by_region(chebyshev_errors, expected_labels, test_points)
+    approx_region_analysis = analyze_by_region(approx_errors, expected_labels, test_points)
     function_region_analysis = analyze_by_region(function_errors, expected_labels, test_points)
     
-    # Compile results
+    # Compile results with dynamic naming
     results = {
         'function_name': function_name,
         'epsilon': epsilon,
         'degree': degree,
+        'method_name': method_name,
+        'method_display': method_display,
         'test_data': {
             'num_points': len(test_points),
             'num_desired': int(np.sum(expected_labels == 1.0)),
@@ -279,9 +285,9 @@ def run_complete_error_analysis(
             'domain': 'rescaled [-1,1]' if config.USE_RESCALED else f'original [{config.MIN_VAL},{config.MAX_VAL}]'
         },
         'approximation_quality': {
-            'mean_chebyshev_error': float(np.mean(chebyshev_errors)),
-            'max_chebyshev_error': float(np.max(chebyshev_errors)),
-            'chebyshev_region_analysis': chebyshev_region_analysis
+            f'mean_{method_name}_error': float(np.mean(approx_errors)),
+            f'max_{method_name}_error': float(np.max(approx_errors)),
+            f'{method_name}_region_analysis': approx_region_analysis
         },
         'function_performance': {
             'mean_expected_error': float(np.mean(function_errors)),
@@ -388,11 +394,13 @@ def run_config_based_analysis() -> Dict[str, Any]:
             
             results['individual_results'].append(result)
             
-            # Print key metrics
-            cheb_error = result['approximation_quality']['mean_chebyshev_error']
+            # Print key metrics - use dynamic method name
+            method_key = result.get('method_name', 'chebyshev')
+            method_display = result.get('method_display', 'Chebyshev')
+            approx_error = result['approximation_quality'][f'mean_{method_key}_error']
             func_error = result['function_performance']['mean_expected_error']
             
-            print(f"  Chebyshev error: {cheb_error:.2e}")
+            print(f"  {method_display} error: {approx_error:.2e}")
             print(f"  Function error: {func_error:.2e}")
             
         except Exception as e:
@@ -405,13 +413,16 @@ def run_config_based_analysis() -> Dict[str, Any]:
 def extract_result_metrics(result: Dict[str, Any]) -> Dict[str, float]:
     """Extract key metrics from a single result for reuse."""
     epsilon = result['epsilon']
-    cheb_error = result['approximation_quality']['mean_chebyshev_error']
+    method_name = result.get('method_name', 'chebyshev')  # fallback for old results
+    
+    # Dynamically extract the approximation error based on method
+    approx_error = result['approximation_quality'][f'mean_{method_name}_error']
     func_error = result['function_performance']['mean_expected_error']
-    ratio = func_error / cheb_error if cheb_error > 0 else float('inf')
+    ratio = func_error / approx_error if approx_error > 0 else float('inf')
     
     return {
         'epsilon': epsilon,
-        'cheb_error': cheb_error, 
+        'cheb_error': approx_error,  # keeping same field name for compatibility
         'func_error': func_error,
         'ratio': ratio
     }
@@ -430,7 +441,8 @@ def save_results(results: Dict[str, Any]):
         f"Total experiments: {results['summary']['total_experiments']}",
         f"Configuration:",
         f"  Domain: {'rescaled [-1,1]' if config.USE_RESCALED else f'[{config.MIN_VAL},{config.MAX_VAL}]'}",
-        f"  Chebyshev degree: {config.CHEB_DEGREE}",
+        f"  Polynomial degree: {config.CHEB_DEGREE}",
+        f"  Method: Chebyshev",
         f"  Points per value: {config.POINTS_PER_VALUE}",
         "",
         "EPSILON ANALYSIS SUMMARY:",
@@ -438,31 +450,36 @@ def save_results(results: Dict[str, Any]):
     ]
     
     # Add epsilon-specific results and build CSV data simultaneously
-    csv_lines = ['epsilon,chebyshev_error,function_error,error_ratio,cheb_desired_error,cheb_non_desired_error,func_desired_error,func_non_desired_error']
+    # Determine method name for CSV header
+    method_name = results['individual_results'][0].get('method_name', 'chebyshev') if results['individual_results'] else 'chebyshev'
+    method_display = results['individual_results'][0].get('method_display', 'Chebyshev') if results['individual_results'] else 'Chebyshev'
+    
+    csv_lines = [f'epsilon,{method_name}_error,function_error,error_ratio,{method_name}_desired_error,{method_name}_non_desired_error,func_desired_error,func_non_desired_error']
     
     for result in results['individual_results']:
         metrics = extract_result_metrics(result)
         
-        # Extract region-specific errors
-        cheb_quality = result['approximation_quality']['chebyshev_region_analysis']
+        # Extract region-specific errors - dynamically find the method name
+        method_name = result.get('method_name', 'chebyshev')  # fallback for old results
+        approx_quality = result['approximation_quality'][f'{method_name}_region_analysis']
         func_performance = result['function_performance']['expected_region_analysis']
         
-        cheb_desired_error = cheb_quality['desired']['mean_error']
-        cheb_non_desired_error = cheb_quality['non_desired']['mean_error']
+        approx_desired_error = approx_quality['desired']['mean_error']
+        approx_non_desired_error = approx_quality['non_desired']['mean_error']
         func_desired_error = func_performance['desired']['mean_error']
         func_non_desired_error = func_performance['non_desired']['mean_error']
         
-        # Add to summary
+        # Add to summary with dynamic method name
         summary_lines.extend([
             f"ε = {metrics['epsilon']:.2e}:",
-            f"  Chebyshev error: {metrics['cheb_error']:.2e}",
+            f"  {method_display} error: {metrics['cheb_error']:.2e}",
             f"  Function error: {metrics['func_error']:.2e}",
             f"  Error ratio: {metrics['ratio']:.1f}",
             ""
         ])
         
         # Add to CSV with region-specific data
-        csv_lines.append(f"{metrics['epsilon']},{metrics['cheb_error']},{metrics['func_error']},{metrics['ratio']},{cheb_desired_error},{cheb_non_desired_error},{func_desired_error},{func_non_desired_error}")
+        csv_lines.append(f"{metrics['epsilon']},{metrics['cheb_error']},{metrics['func_error']},{metrics['ratio']},{approx_desired_error},{approx_non_desired_error},{func_desired_error},{func_non_desired_error}")
     
     # Add output locations
     summary_lines.extend([
@@ -507,19 +524,23 @@ def print_error_analysis_summary(results: Dict[str, Any]):
     print(f"  Desired region: {test_data['num_desired']} points")
     print(f"  Non-desired region: {test_data['num_non_desired']} points")
     
-    # Chebyshev approximation quality - use scientific notation for small values
+    # Polynomial approximation quality - use scientific notation for small values
     approx_quality = results['approximation_quality']
-    mean_cheb = approx_quality['mean_chebyshev_error']
-    max_cheb = approx_quality['max_chebyshev_error']
     
-    print(f"\nChebyshev Approximation Quality:")
-    print(f"  Mean error: {mean_cheb:.2e}")
-    print(f"  Max error: {max_cheb:.2e}")
+    # Dynamically get method info
+    method_key = results.get('method_name', 'chebyshev')
+    method_display = results.get('method_display', 'Chebyshev')
     
-    cheb_desired = approx_quality['chebyshev_region_analysis']['desired']
-    cheb_non_desired = approx_quality['chebyshev_region_analysis']['non_desired']
-    print(f"  Desired region mean error: {cheb_desired['mean_error']:.2e}")
-    print(f"  Non-desired region mean error: {cheb_non_desired['mean_error']:.2e}")
+    mean_approx = approx_quality[f'mean_{method_key}_error']
+    max_approx = approx_quality[f'max_{method_key}_error']
+    
+    print(f"\n{method_display} Approximation Quality:")
+    print(f"  Mean error: {mean_approx:.2e}")
+    print(f"  Max error: {max_approx:.2e}")
+    approx_desired = approx_quality[f'{method_key}_region_analysis']['desired']
+    approx_non_desired = approx_quality[f'{method_key}_region_analysis']['non_desired']
+    print(f"  Desired region mean error: {approx_desired['mean_error']:.2e}")
+    print(f"  Non-desired region mean error: {approx_non_desired['mean_error']:.2e}")
     
     # Function performance against binary classification
     func_perf = results['function_performance']
