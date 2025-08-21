@@ -6,11 +6,11 @@ Modify values directly in this file to customize analysis behavior.
 """
 
 # === Output Configuration ===
-DATE_FOLDER = "aug18_1"  # Change this to update ALL output paths
+DATE_FOLDER = "aug19_5"  # Change this to update ALL output paths
 GRAPHS_BASE_PATH = f"graphs/{DATE_FOLDER}"
 
 # === Test Execution Settings ===
-FUNCTION_TYPE = "plateau_sine_impulse"  # Options: "impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse"
+FUNCTION_TYPE = "plateau_sine_impulse_clean"  # Options: "impulse", "plateau_sine", "plateau_reg", "plateau_sine_impulse", "plateau_sine_impulse_clean", "plateau_sine_impulse_ultra", "plateau_sine_impulse_hybrid", "plateau_sine_impulse_minimal"
 POINTS_PER_VALUE = 1000  # How many test points per integer value (0, 1, 2, etc.)
 USE_RESCALED = True  # True: [-1,1] domain, False: [0,8] domain
 
@@ -23,10 +23,10 @@ MIN_VAL = 0.0  # Minimum domain value (when not rescaled)
 MIN_EPSILON = 0.001  # Minimum epsilon for testing
 MAX_EPSILON = 0.49  # Maximum epsilon for testing  
 NUM_EPSILON_VALUES = 50  # Number of epsilon values to test
-EXACTLY_EPSILON = True  # True: generate points exactly epsilon away, False: random within epsilon distance
+EXACTLY_EPSILON = False  # True: generate points exactly epsilon away, False: random within epsilon distance
 
-# === Chebyshev Approximation Settings ===
-CHEB_DEGREE = 119  # Degree of Chebyshev polynomial approximation
+# === Polynomial Approximation Settings ===
+CHEB_DEGREE = 119  # Degree of polynomial approximation
 
 # === Function-Specific Parameters ===
 IMPULSE = {
@@ -37,7 +37,7 @@ IMPULSE = {
 
 PLATEAU_SINE = {
     "amplitude": 0.001,  # Amplitude of internal ripples
-    "base_amp": 0.001,  # Base wave amplitude  
+    "base_amp": 0.0,  # Base wave amplitude  
     "base_freq": 50,  # Base wave frequency
     "freq": 50,  # Internal ripple frequency
     "steepness": 100,  # Steepness of sigmoid transitions
@@ -65,7 +65,8 @@ def get_function_params(function_type: str = None) -> dict:
     
     if func_type == "impulse":
         return IMPULSE.copy()
-    elif func_type in ["plateau_sine", "plateau_reg", "plateau_sine_impulse"]:
+    elif func_type in ["plateau_sine", "plateau_reg", "plateau_sine_impulse", 
+                       "plateau_sine_impulse_clean"]:
         return PLATEAU_SINE.copy()
     else:
         raise ValueError(f"Unknown function type: {func_type}")
