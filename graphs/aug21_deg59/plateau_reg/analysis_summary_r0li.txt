@@ -1,0 +1,300 @@
+POLYNOMIAL APPROXIMATION ANALYSIS RESULTS
+============================================================
+
+FUNCTION INFORMATION:
+---------------------
+Target Function: plateau_reg
+LaTeX: f(x) = \begin{cases} 1 & \text{if } |x - \text{rescaled}(2.0)| \leq 0.5 \\ 0 & \text{otherwise} \end{cases}
+
+APPROXIMATION METHOD:
+---------------------
+Method: Chebyshev Polynomial Approximation
+LaTeX: P_{59}(x) = \sum_{k=0}^{59} a_k T_k(x) \quad \text{where } T_k(x) \text{ are Chebyshev polynomials}
+
+COMPLETE CONFIGURATION:
+-----------------------
+Analysis completed: 2025-08-21 12:55:16
+Total experiments: 50
+
+Output Settings:
+  DATE_FOLDER: aug21_deg59
+  GRAPHS_BASE_PATH: graphs/aug21_deg59
+  ROUND_PRECISION: 4
+
+Test Execution Settings:
+  FUNCTION_TYPE: plateau_reg
+  POINTS_PER_VALUE: 10000
+  USE_RESCALED: True
+
+Domain Settings:
+  DESIRED_VALUE: 2.0
+  MAX_VAL: 8.0
+  MIN_VAL: 0.0
+  Effective domain: [-1,1] (rescaled)
+
+Epsilon Testing:
+  MIN_EPSILON: 0.001
+  MAX_EPSILON: 0.45
+  NUM_EPSILON_VALUES: 50
+  EXACTLY_EPSILON: False
+
+Polynomial Approximation Settings:
+  CHEB_DEGREE: 59
+
+EPSILON ANALYSIS SUMMARY:
+--------------------------
+ε = 1.00e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.13e-03:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.28e-03:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.45e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.65e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.87e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.11e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.39e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.71e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.07e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.48e-03:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.94e-03:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 4.46e-03:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 5.06e-03:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 5.73e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 6.49e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 7.35e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 8.33e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 9.43e-03:
+  Chebyshev error: 2.21e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.07e-02:
+  Chebyshev error: 2.20e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.21e-02:
+  Chebyshev error: 2.19e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.37e-02:
+  Chebyshev error: 2.18e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.55e-02:
+  Chebyshev error: 2.18e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.76e-02:
+  Chebyshev error: 2.17e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.99e-02:
+  Chebyshev error: 2.17e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.26e-02:
+  Chebyshev error: 2.16e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.56e-02:
+  Chebyshev error: 2.15e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.90e-02:
+  Chebyshev error: 2.13e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.28e-02:
+  Chebyshev error: 2.10e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.72e-02:
+  Chebyshev error: 2.07e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 4.21e-02:
+  Chebyshev error: 2.03e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 4.77e-02:
+  Chebyshev error: 1.99e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 5.40e-02:
+  Chebyshev error: 1.94e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 6.12e-02:
+  Chebyshev error: 1.88e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 6.93e-02:
+  Chebyshev error: 1.80e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 7.86e-02:
+  Chebyshev error: 1.71e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 8.90e-02:
+  Chebyshev error: 1.61e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.01e-01:
+  Chebyshev error: 1.50e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.14e-01:
+  Chebyshev error: 1.44e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.29e-01:
+  Chebyshev error: 1.42e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.47e-01:
+  Chebyshev error: 1.44e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.66e-01:
+  Chebyshev error: 1.51e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 1.88e-01:
+  Chebyshev error: 1.60e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.13e-01:
+  Chebyshev error: 1.71e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.41e-01:
+  Chebyshev error: 1.76e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 2.73e-01:
+  Chebyshev error: 1.73e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.10e-01:
+  Chebyshev error: 1.72e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.51e-01:
+  Chebyshev error: 1.82e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 3.97e-01:
+  Chebyshev error: 2.03e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+ε = 4.50e-01:
+  Chebyshev error: 2.31e-02
+  Function error: 0.00e+00
+  Error ratio: 0.0
+
+OUTPUT LOCATIONS:
+-----------------
+Base directory: graphs/aug21_deg59
+Function plots: graphs/aug21_deg59/plateau_reg
+Summary: graphs/aug21_deg59/plateau_reg/analysis_summary_r0li.txt

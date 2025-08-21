@@ -1,0 +1,306 @@
+POLYNOMIAL APPROXIMATION ANALYSIS RESULTS
+============================================================
+
+FUNCTION INFORMATION:
+---------------------
+Target Function: impulse
+LaTeX: f(x) = 1.0 \cdot \exp\left(-\frac{(x - \text{rescaled}(2.0))^2}{2(0.04/4)^2}\right)
+
+APPROXIMATION METHOD:
+---------------------
+Method: Chebyshev Polynomial Approximation
+LaTeX: P_{119}(x) = \sum_{k=0}^{119} a_k T_k(x) \quad \text{where } T_k(x) \text{ are Chebyshev polynomials}
+
+COMPLETE CONFIGURATION:
+-----------------------
+Analysis completed: 2025-08-21 15:36:59
+Total experiments: 50
+
+Output Settings:
+  DATE_FOLDER: aug21_deg119
+  GRAPHS_BASE_PATH: graphs/aug21_deg119
+  ROUND_PRECISION: 4
+
+Test Execution Settings:
+  FUNCTION_TYPE: impulse
+  POINTS_PER_VALUE: 10000
+  USE_RESCALED: True
+
+Domain Settings:
+  DESIRED_VALUE: 2.0
+  MAX_VAL: 8.0
+  MIN_VAL: 0.0
+  Effective domain: [-1,1] (rescaled)
+
+Epsilon Testing:
+  MIN_EPSILON: 0.001
+  MAX_EPSILON: 0.45
+  NUM_EPSILON_VALUES: 50
+  EXACTLY_EPSILON: False
+
+Polynomial Approximation Settings:
+  CHEB_DEGREE: 119
+
+Function-Specific Parameters:
+  impulse_params:
+    sigma: 0.04
+    mu: 0.0
+    scaling: 1.0
+
+EPSILON ANALYSIS SUMMARY:
+--------------------------
+ε = 1.00e-03:
+  Chebyshev error: 7.32e-07
+  Function error: 7.19e-07
+  Error ratio: 1.0
+
+ε = 1.13e-03:
+  Chebyshev error: 9.36e-07
+  Function error: 9.23e-07
+  Error ratio: 1.0
+
+ε = 1.28e-03:
+  Chebyshev error: 1.20e-06
+  Function error: 1.18e-06
+  Error ratio: 1.0
+
+ε = 1.45e-03:
+  Chebyshev error: 1.53e-06
+  Function error: 1.52e-06
+  Error ratio: 1.0
+
+ε = 1.65e-03:
+  Chebyshev error: 1.96e-06
+  Function error: 1.95e-06
+  Error ratio: 1.0
+
+ε = 1.87e-03:
+  Chebyshev error: 2.51e-06
+  Function error: 2.50e-06
+  Error ratio: 1.0
+
+ε = 2.11e-03:
+  Chebyshev error: 3.22e-06
+  Function error: 3.21e-06
+  Error ratio: 1.0
+
+ε = 2.39e-03:
+  Chebyshev error: 4.13e-06
+  Function error: 4.12e-06
+  Error ratio: 1.0
+
+ε = 2.71e-03:
+  Chebyshev error: 5.30e-06
+  Function error: 5.28e-06
+  Error ratio: 1.0
+
+ε = 3.07e-03:
+  Chebyshev error: 6.79e-06
+  Function error: 6.78e-06
+  Error ratio: 1.0
+
+ε = 3.48e-03:
+  Chebyshev error: 8.71e-06
+  Function error: 8.70e-06
+  Error ratio: 1.0
+
+ε = 3.94e-03:
+  Chebyshev error: 1.12e-05
+  Function error: 1.12e-05
+  Error ratio: 1.0
+
+ε = 4.46e-03:
+  Chebyshev error: 1.43e-05
+  Function error: 1.43e-05
+  Error ratio: 1.0
+
+ε = 5.06e-03:
+  Chebyshev error: 1.84e-05
+  Function error: 1.84e-05
+  Error ratio: 1.0
+
+ε = 5.73e-03:
+  Chebyshev error: 2.36e-05
+  Function error: 2.36e-05
+  Error ratio: 1.0
+
+ε = 6.49e-03:
+  Chebyshev error: 3.03e-05
+  Function error: 3.02e-05
+  Error ratio: 1.0
+
+ε = 7.35e-03:
+  Chebyshev error: 3.88e-05
+  Function error: 3.88e-05
+  Error ratio: 1.0
+
+ε = 8.33e-03:
+  Chebyshev error: 4.98e-05
+  Function error: 4.98e-05
+  Error ratio: 1.0
+
+ε = 9.43e-03:
+  Chebyshev error: 6.39e-05
+  Function error: 6.39e-05
+  Error ratio: 1.0
+
+ε = 1.07e-02:
+  Chebyshev error: 8.20e-05
+  Function error: 8.20e-05
+  Error ratio: 1.0
+
+ε = 1.21e-02:
+  Chebyshev error: 1.05e-04
+  Function error: 1.05e-04
+  Error ratio: 1.0
+
+ε = 1.37e-02:
+  Chebyshev error: 1.35e-04
+  Function error: 1.35e-04
+  Error ratio: 1.0
+
+ε = 1.55e-02:
+  Chebyshev error: 1.73e-04
+  Function error: 1.73e-04
+  Error ratio: 1.0
+
+ε = 1.76e-02:
+  Chebyshev error: 2.22e-04
+  Function error: 2.22e-04
+  Error ratio: 1.0
+
+ε = 1.99e-02:
+  Chebyshev error: 2.85e-04
+  Function error: 2.85e-04
+  Error ratio: 1.0
+
+ε = 2.26e-02:
+  Chebyshev error: 3.65e-04
+  Function error: 3.65e-04
+  Error ratio: 1.0
+
+ε = 2.56e-02:
+  Chebyshev error: 4.68e-04
+  Function error: 4.68e-04
+  Error ratio: 1.0
+
+ε = 2.90e-02:
+  Chebyshev error: 6.00e-04
+  Function error: 6.00e-04
+  Error ratio: 1.0
+
+ε = 3.28e-02:
+  Chebyshev error: 7.69e-04
+  Function error: 7.69e-04
+  Error ratio: 1.0
+
+ε = 3.72e-02:
+  Chebyshev error: 9.85e-04
+  Function error: 9.85e-04
+  Error ratio: 1.0
+
+ε = 4.21e-02:
+  Chebyshev error: 1.26e-03
+  Function error: 1.26e-03
+  Error ratio: 1.0
+
+ε = 4.77e-02:
+  Chebyshev error: 1.61e-03
+  Function error: 1.61e-03
+  Error ratio: 1.0
+
+ε = 5.40e-02:
+  Chebyshev error: 2.06e-03
+  Function error: 2.06e-03
+  Error ratio: 1.0
+
+ε = 6.12e-02:
+  Chebyshev error: 2.63e-03
+  Function error: 2.63e-03
+  Error ratio: 1.0
+
+ε = 6.93e-02:
+  Chebyshev error: 3.36e-03
+  Function error: 3.36e-03
+  Error ratio: 1.0
+
+ε = 7.86e-02:
+  Chebyshev error: 4.28e-03
+  Function error: 4.28e-03
+  Error ratio: 1.0
+
+ε = 8.90e-02:
+  Chebyshev error: 5.43e-03
+  Function error: 5.43e-03
+  Error ratio: 1.0
+
+ε = 1.01e-01:
+  Chebyshev error: 6.88e-03
+  Function error: 6.88e-03
+  Error ratio: 1.0
+
+ε = 1.14e-01:
+  Chebyshev error: 8.69e-03
+  Function error: 8.69e-03
+  Error ratio: 1.0
+
+ε = 1.29e-01:
+  Chebyshev error: 1.09e-02
+  Function error: 1.09e-02
+  Error ratio: 1.0
+
+ε = 1.47e-01:
+  Chebyshev error: 1.37e-02
+  Function error: 1.37e-02
+  Error ratio: 1.0
+
+ε = 1.66e-01:
+  Chebyshev error: 1.70e-02
+  Function error: 1.70e-02
+  Error ratio: 1.0
+
+ε = 1.88e-01:
+  Chebyshev error: 2.09e-02
+  Function error: 2.09e-02
+  Error ratio: 1.0
+
+ε = 2.13e-01:
+  Chebyshev error: 2.55e-02
+  Function error: 2.55e-02
+  Error ratio: 1.0
+
+ε = 2.41e-01:
+  Chebyshev error: 3.07e-02
+  Function error: 3.07e-02
+  Error ratio: 1.0
+
+ε = 2.73e-01:
+  Chebyshev error: 3.65e-02
+  Function error: 3.65e-02
+  Error ratio: 1.0
+
+ε = 3.10e-01:
+  Chebyshev error: 4.27e-02
+  Function error: 4.27e-02
+  Error ratio: 1.0
+
+ε = 3.51e-01:
+  Chebyshev error: 4.91e-02
+  Function error: 4.91e-02
+  Error ratio: 1.0
+
+ε = 3.97e-01:
+  Chebyshev error: 5.54e-02
+  Function error: 5.54e-02
+  Error ratio: 1.0
+
+ε = 4.50e-01:
+  Chebyshev error: 6.15e-02
+  Function error: 6.15e-02
+  Error ratio: 1.0
+
+OUTPUT LOCATIONS:
+-----------------
+Base directory: graphs/aug21_deg119
+Function plots: graphs/aug21_deg119/impulse
+Summary: graphs/aug21_deg119/impulse/analysis_summary_d1mw.txt

@@ -1,0 +1,321 @@
+POLYNOMIAL APPROXIMATION ANALYSIS RESULTS
+============================================================
+
+FUNCTION INFORMATION:
+---------------------
+Target Function: plateau_sine
+LaTeX: \begin{align*}
+    B(x) &= \alpha \sin(\phi \pi x), \\
+    \sigma_+(x) &= \frac{1}{1 + e^{-\kappa(x - (\mu - \frac{w}{2}))}}, \\
+    \sigma_-(x) &= \frac{1}{1 + e^{-\kappa((\mu + \frac{w}{2}) - x)}}, \\
+    m(x) &= \sigma_+(x) \cdot \sigma_-(x), \\
+    r(x) &= \beta \sin(\gamma \pi x), \\
+    f(x) &= [1 + r(x)] m(x) + B(x) [1 - m(x)].
+\end{align*}
+
+with parameters:
+\[
+\alpha = 1e-05, \quad \phi = 20, \quad \kappa = 100, \quad w = 0.250, \quad \beta = 1e-05, \quad \gamma = 20, \quad \mu = -0.500.
+\]
+
+APPROXIMATION METHOD:
+---------------------
+Method: Chebyshev Polynomial Approximation
+LaTeX: P_{59}(x) = \sum_{k=0}^{59} a_k T_k(x) \quad \text{where } T_k(x) \text{ are Chebyshev polynomials}
+
+COMPLETE CONFIGURATION:
+-----------------------
+Analysis completed: 2025-08-21 15:33:55
+Total experiments: 50
+
+Output Settings:
+  DATE_FOLDER: aug21_deg59
+  GRAPHS_BASE_PATH: graphs/aug21_deg59
+  ROUND_PRECISION: 4
+
+Test Execution Settings:
+  FUNCTION_TYPE: plateau_sine
+  POINTS_PER_VALUE: 10000
+  USE_RESCALED: True
+
+Domain Settings:
+  DESIRED_VALUE: 2.0
+  MAX_VAL: 8.0
+  MIN_VAL: 0.0
+  Effective domain: [-1,1] (rescaled)
+
+Epsilon Testing:
+  MIN_EPSILON: 0.001
+  MAX_EPSILON: 0.45
+  NUM_EPSILON_VALUES: 50
+  EXACTLY_EPSILON: False
+
+Polynomial Approximation Settings:
+  CHEB_DEGREE: 59
+
+Function-Specific Parameters:
+  plateau_sine_params:
+    amplitude: 1e-05
+    base_amp: 1e-05
+    base_freq: 20
+    freq: 20
+    steepness: 100
+    width: 1.0
+
+EPSILON ANALYSIS SUMMARY:
+--------------------------
+ε = 1.00e-03:
+  Chebyshev error: 8.50e-03
+  Function error: 1.71e-06
+  Error ratio: 0.0
+
+ε = 1.13e-03:
+  Chebyshev error: 8.47e-03
+  Function error: 1.72e-06
+  Error ratio: 0.0
+
+ε = 1.28e-03:
+  Chebyshev error: 8.44e-03
+  Function error: 1.72e-06
+  Error ratio: 0.0
+
+ε = 1.45e-03:
+  Chebyshev error: 8.41e-03
+  Function error: 1.73e-06
+  Error ratio: 0.0
+
+ε = 1.65e-03:
+  Chebyshev error: 8.38e-03
+  Function error: 1.74e-06
+  Error ratio: 0.0
+
+ε = 1.87e-03:
+  Chebyshev error: 8.37e-03
+  Function error: 1.76e-06
+  Error ratio: 0.0
+
+ε = 2.11e-03:
+  Chebyshev error: 8.37e-03
+  Function error: 1.77e-06
+  Error ratio: 0.0
+
+ε = 2.39e-03:
+  Chebyshev error: 8.37e-03
+  Function error: 1.78e-06
+  Error ratio: 0.0
+
+ε = 2.71e-03:
+  Chebyshev error: 8.38e-03
+  Function error: 1.80e-06
+  Error ratio: 0.0
+
+ε = 3.07e-03:
+  Chebyshev error: 8.40e-03
+  Function error: 1.82e-06
+  Error ratio: 0.0
+
+ε = 3.48e-03:
+  Chebyshev error: 8.42e-03
+  Function error: 1.84e-06
+  Error ratio: 0.0
+
+ε = 3.94e-03:
+  Chebyshev error: 8.45e-03
+  Function error: 1.87e-06
+  Error ratio: 0.0
+
+ε = 4.46e-03:
+  Chebyshev error: 8.47e-03
+  Function error: 1.90e-06
+  Error ratio: 0.0
+
+ε = 5.06e-03:
+  Chebyshev error: 8.50e-03
+  Function error: 1.93e-06
+  Error ratio: 0.0
+
+ε = 5.73e-03:
+  Chebyshev error: 8.53e-03
+  Function error: 1.96e-06
+  Error ratio: 0.0
+
+ε = 6.49e-03:
+  Chebyshev error: 8.54e-03
+  Function error: 2.01e-06
+  Error ratio: 0.0
+
+ε = 7.35e-03:
+  Chebyshev error: 8.56e-03
+  Function error: 2.05e-06
+  Error ratio: 0.0
+
+ε = 8.33e-03:
+  Chebyshev error: 8.56e-03
+  Function error: 2.11e-06
+  Error ratio: 0.0
+
+ε = 9.43e-03:
+  Chebyshev error: 8.54e-03
+  Function error: 2.17e-06
+  Error ratio: 0.0
+
+ε = 1.07e-02:
+  Chebyshev error: 8.51e-03
+  Function error: 2.24e-06
+  Error ratio: 0.0
+
+ε = 1.21e-02:
+  Chebyshev error: 8.46e-03
+  Function error: 2.32e-06
+  Error ratio: 0.0
+
+ε = 1.37e-02:
+  Chebyshev error: 8.41e-03
+  Function error: 2.41e-06
+  Error ratio: 0.0
+
+ε = 1.55e-02:
+  Chebyshev error: 8.38e-03
+  Function error: 2.51e-06
+  Error ratio: 0.0
+
+ε = 1.76e-02:
+  Chebyshev error: 8.36e-03
+  Function error: 2.63e-06
+  Error ratio: 0.0
+
+ε = 1.99e-02:
+  Chebyshev error: 8.35e-03
+  Function error: 2.78e-06
+  Error ratio: 0.0
+
+ε = 2.26e-02:
+  Chebyshev error: 8.33e-03
+  Function error: 2.95e-06
+  Error ratio: 0.0
+
+ε = 2.56e-02:
+  Chebyshev error: 8.30e-03
+  Function error: 3.14e-06
+  Error ratio: 0.0
+
+ε = 2.90e-02:
+  Chebyshev error: 8.23e-03
+  Function error: 3.37e-06
+  Error ratio: 0.0
+
+ε = 3.28e-02:
+  Chebyshev error: 8.11e-03
+  Function error: 3.63e-06
+  Error ratio: 0.0
+
+ε = 3.72e-02:
+  Chebyshev error: 7.96e-03
+  Function error: 3.94e-06
+  Error ratio: 0.0
+
+ε = 4.21e-02:
+  Chebyshev error: 7.81e-03
+  Function error: 4.29e-06
+  Error ratio: 0.0
+
+ε = 4.77e-02:
+  Chebyshev error: 7.66e-03
+  Function error: 4.69e-06
+  Error ratio: 0.0
+
+ε = 5.40e-02:
+  Chebyshev error: 7.50e-03
+  Function error: 5.16e-06
+  Error ratio: 0.0
+
+ε = 6.12e-02:
+  Chebyshev error: 7.29e-03
+  Function error: 5.69e-06
+  Error ratio: 0.0
+
+ε = 6.93e-02:
+  Chebyshev error: 7.00e-03
+  Function error: 6.31e-06
+  Error ratio: 0.0
+
+ε = 7.86e-02:
+  Chebyshev error: 6.69e-03
+  Function error: 7.03e-06
+  Error ratio: 0.0
+
+ε = 8.90e-02:
+  Chebyshev error: 6.37e-03
+  Function error: 7.88e-06
+  Error ratio: 0.0
+
+ε = 1.01e-01:
+  Chebyshev error: 6.02e-03
+  Function error: 8.91e-06
+  Error ratio: 0.0
+
+ε = 1.14e-01:
+  Chebyshev error: 5.76e-03
+  Function error: 1.02e-05
+  Error ratio: 0.0
+
+ε = 1.29e-01:
+  Chebyshev error: 5.70e-03
+  Function error: 1.19e-05
+  Error ratio: 0.0
+
+ε = 1.47e-01:
+  Chebyshev error: 5.79e-03
+  Function error: 1.43e-05
+  Error ratio: 0.0
+
+ε = 1.66e-01:
+  Chebyshev error: 5.98e-03
+  Function error: 1.80e-05
+  Error ratio: 0.0
+
+ε = 1.88e-01:
+  Chebyshev error: 6.29e-03
+  Function error: 2.44e-05
+  Error ratio: 0.0
+
+ε = 2.13e-01:
+  Chebyshev error: 6.66e-03
+  Function error: 3.63e-05
+  Error ratio: 0.0
+
+ε = 2.41e-01:
+  Chebyshev error: 6.82e-03
+  Function error: 6.10e-05
+  Error ratio: 0.0
+
+ε = 2.73e-01:
+  Chebyshev error: 6.72e-03
+  Function error: 1.16e-04
+  Error ratio: 0.0
+
+ε = 3.10e-01:
+  Chebyshev error: 6.60e-03
+  Function error: 2.47e-04
+  Error ratio: 0.0
+
+ε = 3.51e-01:
+  Chebyshev error: 6.65e-03
+  Function error: 5.96e-04
+  Error ratio: 0.1
+
+ε = 3.97e-01:
+  Chebyshev error: 7.39e-03
+  Function error: 1.63e-03
+  Error ratio: 0.2
+
+ε = 4.50e-01:
+  Chebyshev error: 1.14e-02
+  Function error: 4.90e-03
+  Error ratio: 0.4
+
+OUTPUT LOCATIONS:
+-----------------
+Base directory: graphs/aug21_deg59
+Function plots: graphs/aug21_deg59/plateau_sine
+Summary: graphs/aug21_deg59/plateau_sine/analysis_summary_dmza.txt
