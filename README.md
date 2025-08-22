@@ -1,7 +1,17 @@
 # Polynomial Approximation Test Suite
 
-## Goal
-Test how well Chebyshev polynomial approximations of indicator functions perform when evaluated on "approximate integer" points with varying epsilon values. The goal is to understand how noise in input data affects the accuracy of polynomial approximations.
+A comprehensive analysis framework for testing Chebyshev polynomial approximations of indicator functions, with focus on performance under input noise and domain variations.
+
+## Overview
+This project evaluates how well Chebyshev polynomial approximations of indicator functions perform when evaluated on "approximate integer" points with varying epsilon values. The system supports multiple indicator function types, domain rescaling between [0,8] and [-1,1], and comprehensive error analysis across different polynomial degrees.
+
+**Key Features:**
+- 4 different indicator function implementations
+- Dual domain support (original [0,8] and rescaled [-1,1])  
+- Configurable Chebyshev polynomial degrees (59, 119, 247+)
+- Comprehensive error analysis for desired vs non-desired regions
+- Automated visualization and comparison generation
+- Extensive parameter sweep capabilities
 
 ## Quick Start
 1. **Configure parameters**: Edit `config.py` (see Configuration section)
@@ -106,6 +116,71 @@ Run `python verify_tests.py` to verify the system works correctly:
 - ✓ **Functions**: Verifies different functions produce different outputs  
 - ✓ **Epsilon**: Confirms epsilon affects point generation
 - ✓ **Domains**: Tests rescaled vs original domain consistency
+
+## File Structure
+
+### Core System Files
+- **`main.py`** - Main application entry point that orchestrates the complete analysis workflow
+- **`config.py`** - Centralized configuration file containing all adjustable parameters for the system
+- **`utils.py`** - Common utility functions including statistics, file handling, and ID generation
+
+### Mathematical Components  
+- **`indicator_functions.py`** - Implementation of various indicator functions (impulse, plateau_sine, plateau_reg, plateau_sine_impulse)
+- **`chebyshev_approximation.py`** - Chebyshev polynomial coefficient computation and evaluation using optimized NumPy implementation
+- **`data_generation.py`** - Generation of approximate integer test data with domain rescaling capabilities
+
+### Analysis & Visualization
+- **`error_analysis.py`** - Comprehensive error calculation and analysis between polynomial approximations and true function values
+- **`create_graphs.py`** - All plotting and visualization functionality including function plots, error analysis, and comparison charts
+- **`compare_runs.py`** - Cross-run comparison utilities and batch analysis tools
+
+### Output Structure
+- **`graphs/`** - Organized output directory structure:
+  - `{DATE_FOLDER}/` - Date-based run organization (e.g., `aug21_deg119/`)
+    - `{FUNCTION_TYPE}/` - Function-specific results (impulse, plateau_sine, plateau_reg)
+      - `*_function_approximation_*.png` - Function vs approximation comparison
+      - `*_function_*_errors_*.png` - Function-based error analysis plots  
+      - `*_chebyshev_*_errors_*.png` - Chebyshev-based error analysis plots
+      - `*_detailed_results_*.csv` - Raw numerical results data
+      - `analysis_summary_*.txt` - Statistical analysis summaries
+    - `comparisons/` - Cross-function comparison plots
+    - `verification/` - System verification and validation plots
+- **`archive/`** - Historical versions and experimental code
+
+## Dependencies
+- Python 3.7+
+- NumPy - Mathematical operations and polynomial computations  
+- Matplotlib - Plotting and visualization
+- Pathlib - File system operations
+
+## Usage Examples
+
+### Basic Single Run
+```python
+# Configure in config.py:
+FUNCTION_TYPE = "impulse"
+CHEB_DEGREE = 119
+USE_RESCALED = True
+
+# Run analysis
+python main.py
+```
+
+### Parameter Sweep
+```python  
+# Configure in config.py:
+MIN_EPSILON = 0.001
+MAX_EPSILON = 0.45
+NUM_EPSILON_VALUES = 50
+
+# Results automatically saved to graphs/{DATE_FOLDER}/
+```
+
+### Function Comparison
+```python
+# Run multiple function types with compare_runs.py
+# Automatically generates comparison visualizations
+```
 
 ## Key Findings
 1. **Rescaling works correctly**: Both domains produce consistent results
